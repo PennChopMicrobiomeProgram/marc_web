@@ -1,0 +1,4 @@
+flask
+flask-sqlalchemy
+sqlalchemy
+-e git+https://github.com/PennChopMicrobiomeProgram/marc_db.git#egg=marc_db
