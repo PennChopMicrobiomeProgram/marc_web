@@ -1,5 +1,9 @@
 # marc_web
+
 A web interface for querying mARC
+
+[![Tests](https://github.com/PennChopMicrobiomeProgram/marc_web/actions/workflows/pr.yml/badge.svg)](https://github.com/PennChopMicrobiomeProgram/marc_web/actions/workflows/pr.yml)
+[![DockerHub](https://img.shields.io/docker/pulls/ctbushman/marc_web)](https://hub.docker.com/repository/docker/ctbushman/marc_web/)
 
 
 ## Dev
