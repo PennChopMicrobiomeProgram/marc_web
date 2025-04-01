@@ -1,5 +1,6 @@
 import csv
 import os
+from app import __version__
 from flask import (
     Flask,
     make_response,
@@ -10,6 +11,7 @@ from flask import (
 )
 from flask_sqlalchemy import SQLAlchemy
 from io import StringIO
+from marc_db import __version__ as marc_db_version
 from marc_db.models import Aliquot, Base, Isolate
 from marc_db.views import get_aliquots, get_isolates
 from pathlib import Path
@@ -110,3 +112,23 @@ def api():
         return {"result": ["No query provided"], "status_code": 400}
     except Exception as e:
         return {"result": [str(e)], "status_code": 500}
+
+
+@app.route("/health")
+def health():
+    """Health check endpoint."""
+    try:
+        with app.app_context():
+            db.session.execute("SELECT 1")
+        return {"status": "healthy"}, 200
+    except Exception as e:
+        return {"status": "unhealthy", "error": str(e)}, 500
+
+
+@app.route("/info")
+def info():
+    return render_template(
+        "info.html",
+        version=__version__,
+        marc_db_version=marc_db_version,
+    )
