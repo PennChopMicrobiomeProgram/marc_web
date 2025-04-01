@@ -1,9 +1,11 @@
 import pytest
-from app.app import app
 
 
 @pytest.fixture
-def client():
+def client(monkeypatch):
+    monkeypatch.setenv("MARC_DB_URL", "sqlite:///:memory:")
+    from app.app import app
+
     with app.test_client() as client:
         yield client
 

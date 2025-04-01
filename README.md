@@ -17,4 +17,4 @@ pip install -r dev-requirements.txt
 export MARC_DB_URL=sqlite:////path/to/marc_web/db.sqlite && export FLASK_DEBUG=1 && flask --app app/app run
 ```
 
-You'll need to create `/path/to/marc_web/db.sqlite` using [marc_db]](https://github.com/PennChopMicrobiomeProgram/marc_db).
+You'll need to create `/path/to/marc_web/db.sqlite` using [marc_db](https://github.com/PennChopMicrobiomeProgram/marc_db).
