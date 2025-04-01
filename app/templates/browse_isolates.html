@@ -4,36 +4,47 @@
 <div id="isolates_summary" class="summary span-24 last">
   <h2>Isolates</h2>
 </div>
-  
-<table class="display" id="isolates">
-  <thead>
-    <tr>
-      <th>&nbsp;</th>
-      <th>Received Date</th>
-      <th>Cryobanking Date</th>
-      <th>Subject ID</th>
-      <th>Specimen ID</th>
-      <th>Source</th>
-      <th>Suspected Organism</th>
-      <th>Special Collection</th>
-    </tr>
-  </thead>
-  
-  <tbody>
-    {% for iso in isolates %}
-    <tr>
-      <td><a href="{{ url_for('show_isolate', isolate_id=iso.id) }}">{{ iso.id }}</a></td>
-      <td><span class="date">{{ iso.received_date }}</span></td>
-      <td><span class="date">{{ iso.cryobanking_date }}</span></td>
-      <td><nobr>{{ iso.subject_id }}</nobr></td>
-      <td>{{ iso.specimen_id }}</td>
-      <td>{{ iso.source }}</td>
-      <td>{{ iso.suspected_organism }}</td>
-      <td>{{ iso.special_collection }}</td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
+
+<div class="d-flex flex-row">
+  <div class="d-flex p-5 w-50">
+    <table class="display" id="isolates">
+      <thead>
+        <tr>
+          <th>&nbsp;</th>
+          <th>Received Date</th>
+          <th>Cryobanking Date</th>
+          <th>Subject ID</th>
+          <th>Specimen ID</th>
+          <th>Source</th>
+          <th>Suspected Organism</th>
+          <th>Special Collection</th>
+        </tr>
+      </thead>
+      
+      <tbody>
+        {% for iso in isolates %}
+        <tr>
+          <td><a href="{{ url_for('show_isolate', isolate_id=iso.id) }}">{{ iso.id }}</a></td>
+          <td><span class="date">{{ iso.received_date }}</span></td>
+          <td><span class="date">{{ iso.cryobanking_date }}</span></td>
+          <td><nobr>{{ iso.subject_id }}</nobr></td>
+          <td>{{ iso.specimen_id }}</td>
+          <td>{{ iso.source }}</td>
+          <td>{{ iso.suspected_organism }}</td>
+          <td>{{ iso.special_collection }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="d-flex w-50 p-5 m-5 border border-black">
+    <form class="d-flex flex-column w-100" method="POST" action="{{ url_for('query') }}">
+      <label class="p-2">Custom Query</label>
+      <textarea id="query" name="query" class="w-100 p-2" rows="10"></textarea>
+      <button type="submit" id="submit" class="my-2 p-2">Submit</button>
+    </form>
+  </div>
+</div>
   
   <script type="text/javascript">
   $(document).ready(function () {

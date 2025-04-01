@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block body %}
+<div id="query" class="summary span-24 last p-5">
+    <h2>Query</h2>
+    <p>{{ query }}</p>
+    <div class="card-body">
+        <form action="{{ '/download' }}" method="POST" enctype="multipart/form-data">
+          <div class="form-group">
+            <input type="hidden" name="query" value="{{ query }}">
+            <button type="submit" class="btn btn-success">Download metadata</button>
+          </div>
+        </form>
+      </div>
+    <a href="{{ url_for('index') }}"><-- New Query</a>
+</div>
+
+<div>
+    <table class="display" id="results">
+      <thead>
+        <tr>
+          {% for col in columns %}
+          <th>{{ col }}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      
+      <tbody>
+        {% for row in rows %}
+        <tr>
+          {% for item in row %}
+          <td>{{ item }}</td>
+          {% endfor %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+</div>
+
+<script type="text/javascript">
+$(document).ready(function () {
+    /* Initialize the DataTable */
+    oTable = $('#results').dataTable({
+        "bSort": false,
+        "iDisplayLength": 20,
+        "bLengthChange": false,
+        "sPaginationType": "full_numbers",
+        "bStateSave": true,
+    });
+
+    /* Move search box to bottom of summary area */
+    $("#results_filter").appendTo('#results_summary');
+
+    /* Snap pagination info to grid */
+    $("#results_info").addClass("span-12");
+    $("#results_paginate").addClass("span-12 last")
+
+    /* Moving the search box breaks the state saving routine */
+    /* Redraw manually */
+    oTable.fnDraw();
+});
+</script>
+{% endblock %}

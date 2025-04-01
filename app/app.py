@@ -1,9 +1,12 @@
+import csv
 import os
-from flask import Flask, redirect, render_template, send_from_directory
+from flask import Flask, make_response, redirect, render_template, request, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
+from io import StringIO
 from marc_db.models import Aliquot, Base, Isolate
 from marc_db.views import get_aliquots, get_isolates
 from pathlib import Path
+from sqlalchemy import text
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 
@@ -40,4 +43,61 @@ def index():
 
 @app.route("/isolate/<isolate_id>")
 def show_isolate(isolate_id):
-    return render_template("isolate.html", isolate=get_isolates(db.session, isolate_id))
+    return render_template("show_isolate.html", isolate=get_isolates(db.session, isolate_id))
+
+
+@app.route("/query", methods=["POST"])
+def query():
+    if request.method == "POST":
+        query = request.form["query"]
+        sql = text(query)
+        with app.app_context():
+            result = db.session.execute(sql).fetchall()
+            return render_template(
+                "view_query.html",
+                query=query,
+                columns=result[0]._fields,
+                rows=[row._asdict().values() for row in result],
+            )
+        
+
+@app.route("/download", methods=["POST"])
+def download():
+    if request.method == "POST":
+        query = request.form["query"]
+        sql = text(query)
+        with app.app_context():
+            result = db.session.execute(sql).fetchall()
+            columns = result[0]._fields
+            rows = [row._asdict().values() for row in result]
+
+            csv_file = StringIO()
+            writer = csv.writer(csv_file)
+            writer.writerow(columns)
+            for row in rows:
+                writer.writerow(row)
+
+            # Create the response and set the appropriate headers
+            response = make_response(csv_file.getvalue())
+            response.headers["Content-Disposition"] = (
+                f"attachment; filename=marc_query_download.csv"
+            )
+            response.headers["Content-type"] = "text/csv"
+            return response
+
+    return redirect("/")
+        
+
+@app.route("/api", methods=["POST"])
+def api():
+    try:
+        if request.method == "POST":
+            query = request.form["query"]
+            sql = text(query)
+            with app.app_context():
+                result = db.session.execute(sql).fetchall()
+                return {"result": [dict(row) for row in result], "status_code": 200}
+        
+        return {"result": ["No query provided"], "status_code": 400}
+    except Exception as e:
+        return {"result": [str(e)], "status_code": 500}
