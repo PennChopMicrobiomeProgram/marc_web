@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block body %}
+<div class="d-flex flex-row">
+  <div class="d-flex w-50 p-5 m-5 border border-black">
+    <form class="d-flex flex-column w-100" method="POST" action="{{ url_for('query') }}">
+      <label class="p-2">Custom Query</label>
+      <textarea id="query" name="query" class="w-100 p-2" rows="10">{{ query }}</textarea>
+      <button type="submit" id="submit" class="my-2 p-2">Submit</button>
+    </form>
+  </div>
+
+  <div class="d-flex w-50 p-5 m-5">
+    {% for model in models %}
+    <div class="d-flex flex-column w-100 p-2 border border-black">
+      <h4>{{ model.__table__.name }}</h4>
+      <ul>
+        {% for field in model.__table__.columns %}
+          <li>{{ field }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+{% if error is defined %}
+<div class="alert alert-danger">
+  <strong>Error:</strong> {{ error }}
+</div>
+{% endif %}
+
+{% if columns %}
+<div class="d-flex w-50 px-5">
+  <form action="{{ '/download' }}" method="POST" enctype="multipart/form-data">
+    <div class="form-group">
+      <input type="hidden" name="query" value="{{ query }}">
+      <button type="submit" class="btn btn-success">Download metadata</button>
+    </div>
+  </form>
+</div>
+<div>
+    <table class="display" id="results">
+      <thead>
+        <tr>
+          {% for col in columns %}
+          <th>{{ col }}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      
+      <tbody>
+        {% for row in rows %}
+        <tr>
+          {% for item in row %}
+          <td>{{ item }}</td>
+          {% endfor %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+</div>
+
+<script type="text/javascript">
+$(document).ready(function () {
+    /* Initialize the DataTable */
+    oTable = $('#results').dataTable({
+        "bSort": false,
+        "iDisplayLength": 20,
+        "bLengthChange": false,
+        "sPaginationType": "full_numbers",
+        "bStateSave": true,
+    });
+
+    /* Move search box to bottom of summary area */
+    $("#results_filter").appendTo('#results_summary');
+
+    /* Snap pagination info to grid */
+    $("#results_info").addClass("span-12");
+    $("#results_paginate").addClass("span-12 last")
+
+    /* Moving the search box breaks the state saving routine */
+    /* Redraw manually */
+    oTable.fnDraw();
+});
+</script>
+{% endif %}
+{% endblock %}

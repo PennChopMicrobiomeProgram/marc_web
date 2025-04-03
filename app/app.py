@@ -47,6 +47,11 @@ def favicon():
 
 @app.route("/")
 def index():
+    return render_template("index.html")
+
+
+@app.route("/isolates")
+def browse_isolates():
     return render_template("browse_isolates.html", isolates=get_isolates(db.session))
 
 
@@ -57,19 +62,62 @@ def show_isolate(isolate_id):
     )
 
 
-@app.route("/query", methods=["POST"])
+@app.route("/aliquots")
+def browse_aliquots():
+    return render_template("browse_aliquots.html", aliquots=get_aliquots(db.session))
+
+
+@app.route("/aliquot/<aliquot_id>")
+def show_aliquot(aliquot_id):
+    return render_template(
+        "show_aliquot.html", aliquot=get_aliquots(db.session, aliquot_id)
+    )
+
+
+@app.route("/query", methods=["GET", "POST"])
 def query():
-    if request.method == "POST":
+    if request.method == "GET":
+        return render_template(
+            "query.html",
+            query="",
+            columns=[],
+            rows=[],
+            models=[Aliquot, Isolate],
+        )
+    elif request.method == "POST":
         query = request.form["query"]
-        sql = text(query)
-        with app.app_context():
-            result = db.session.execute(sql).fetchall()
+
+        try:
+            sql = text(query)
+            with app.app_context():
+                result = db.session.execute(sql).fetchall()
+        except Exception as e:
             return render_template(
-                "view_query.html",
+                "query.html",
                 query=query,
-                columns=result[0]._fields,
-                rows=[row._asdict().values() for row in result],
+                columns=[],
+                rows=[],
+                models=[Aliquot, Isolate],
+                error=str(e),
             )
+
+        if not result:
+            return render_template(
+                "query.html",
+                query=query,
+                columns=[],
+                rows=[],
+                models=[Aliquot, Isolate],
+                error="No results found.",
+            )
+
+        return render_template(
+            "query.html",
+            query=query,
+            columns=result[0]._fields,
+            rows=[row._asdict().values() for row in result],
+            models=[Aliquot, Isolate],
+        )
 
 
 @app.route("/download", methods=["POST"])
@@ -132,3 +180,8 @@ def info():
         version=__version__,
         marc_db_version=marc_db_version,
     )
+
+
+@app.route("/arch")
+def arch():
+    return render_template("arch.html")

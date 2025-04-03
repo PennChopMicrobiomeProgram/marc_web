@@ -37,10 +37,24 @@
       <div class="row justify-content-start">
         <div class="col-sm-auto">
           <h2>
-            <a href="/" style="text-decoration: none">mARC Query</a>
+            <a href="{{ url_for('index') }}" style="text-decoration: none">mARC Query</a>
           </h2>
         </div>
         <div class="col-sm-auto">
+          <ul class="nav nav-pills">
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('index') }}">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('browse_aliquots') }}">Aliquots</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('browse_isolates') }}">Isolates</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('query') }}">Custom Query</a>
+            </li>
+          </ul>
         </div>
         <div class="col-sm-auto">
         </div>

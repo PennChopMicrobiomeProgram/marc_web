@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block body %}
+<div>
+    <pre class="mermaid">
+        architecture-beta
+            service seq_data(dna)[Seq Data]
+            service seq_metadata(data)[Seq Metadata]
+            service seq_reports(data)[Seq Reports]
+
+            group marc(cloud)[mARC DB]
+
+            service marc_honest(py)[marc_honest] in marc
+            service marc_db(py)[marc_db] in marc
+            group marc_web(logos:kubernetes)[Site] in marc
+
+            service marc_ingress(network)[Ingress] in marc_web
+            service marc_service(service)[Service] in marc_web
+            service marc_pod_1(server)[Pod 1] in marc_web
+            service marc_pod_2(server)[Pod 2] in marc_web
+
+            group isilon(disk)[Isilon] in marc
+
+            service private_db(database)[PHI DB] in isilon
+            service public_db(database)[DB] in isilon
+            service public_db_worm(database)[WORM DB] in isilon
+            service genomes(directory)[Genomes] in isilon
+
+            group internet(internet)[Internet]
+
+            service user(user)[User] in internet
+
+            seq_metadata:R --> L:marc_honest
+            marc_honest:B --> T:private_db
+            marc_honest:R --> L:marc_db
+            marc_db:B --> T:public_db
+
+            public_db_worm:R <--> L:marc_service
+
+            marc_ingress:B <--> T:marc_service
+            marc_service:B <--> T:marc_pod_1
+            marc_service:B <--> T:marc_pod_2
+
+            user:B <--> T:marc_ingress
+  </pre>
+</div>
+
+<script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({ startOnLoad: true });
+</script>
+{% endblock %}

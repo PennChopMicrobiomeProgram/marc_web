@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block body %}
+<div id="aliquot_summary" class="summary span-24 last">
+  <h2>Aliquots</h2>
+</div>
+
+<div class="d-flex flex-row">
+  <div class="d-flex p-5">
+    <table class="display" id="aliquots">
+      <thead>
+        <tr>
+          <th>&nbsp;</th>
+          <th>Isolate</th>
+          <th>Tube Barcode</th>
+          <th>Box Name</th>
+        </tr>
+      </thead>
+      
+      <tbody>
+        {% for ali in aliquots %}
+        <tr>
+          <td><a href="{{ url_for('show_aliquot', aliquot_id=ali.id) }}">{{ ali.id }}</a></td>
+          <td><nobr>{{ ali.isolate_id }}</nobr></td>
+          <td>{{ ali.tube_barcode }}</td>
+          <td>{{ ali.box_name }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+  
+  <script type="text/javascript">
+  $(document).ready(function () {
+      /* Initialize the DataTable */
+      oTable = $('#aliquots').dataTable({
+          "bSort": false,
+          "iDisplayLength": 20,
+          "bLengthChange": false,
+          "sPaginationType": "full_numbers",
+          "bStateSave": true,
+      });
+  
+      /* Move search box to bottom of summary area */
+      $("#aliquots_filter").appendTo('#aliquots_summary');
+  
+      /* Snap pagination info to grid */
+      $("#aliquots_info").addClass("span-12");
+      $("#aliquots_paginate").addClass("span-12 last")
+  
+      /* Moving the search box breaks the state saving routine */
+      /* Redraw manually */
+      oTable.fnDraw();
+  });
+  </script>
+{% endblock %}
