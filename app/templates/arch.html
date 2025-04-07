@@ -30,10 +30,13 @@
 
             service user(user)[User] in internet
 
+            seq_data:R --> L:genomes
             seq_metadata:R --> L:marc_honest
+            seq_reports:R --> L:marc_db
             marc_honest:B --> T:private_db
             marc_honest:R --> L:marc_db
             marc_db:B --> T:public_db
+            marc_db:R --> T:public_db_worm
 
             public_db_worm:R <--> L:marc_service
 
@@ -41,7 +44,7 @@
             marc_service:B <--> T:marc_pod_1
             marc_service:B <--> T:marc_pod_2
 
-            user:B <--> T:marc_ingress
+            user:L <--> R:marc_ingress
   </pre>
 </div>
 
