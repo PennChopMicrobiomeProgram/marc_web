@@ -187,7 +187,7 @@ def arch():
     return render_template("arch.html")
 
 
-if not app.config["FLASK_DEBUG"]:
+if not app.config.get("FLASK_DEBUG", 0):
 
     @app.errorhandler(404)
     def page_not_found(e):
