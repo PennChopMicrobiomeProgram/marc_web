@@ -52,6 +52,7 @@ def index():
 
 @app.route("/isolates")
 def browse_isolates():
+    print(get_isolates(db.session))
     return render_template("browse_isolates.html", isolates=get_isolates(db.session))
 
 
@@ -164,13 +165,17 @@ def api():
 
 @app.route("/health")
 def health():
-    """Health check endpoint."""
     try:
-        with app.app_context():
-            db.session.execute("SELECT 1")
-        return {"status": "healthy"}, 200
+        db.session.execute(text("SELECT 1")).scalar()
+        return {"status": "ready"}, 200
     except Exception as e:
-        return {"status": "unhealthy", "error": str(e)}, 500
+        return {"status": "unready", "error": str(e)}, 500
+
+
+@app.route("/liveness")
+def liveness():
+    """Liveness check endpoint."""
+    return {"status": "alive"}, 200
 
 
 @app.route("/info")
@@ -187,7 +192,7 @@ def arch():
     return render_template("arch.html")
 
 
-if not app.config.get("FLASK_DEBUG", 0):
+if not app.debug:
 
     @app.errorhandler(404)
     def page_not_found(e):
@@ -198,6 +203,7 @@ if not app.config.get("FLASK_DEBUG", 0):
     def internal_server_error(e):
         # Figure out best method for alert on error
         # This should probably contact someone to let them know something went wrong
+        print(f"Internal Server Error: {e}")
         return (
             render_template(
                 "dne.html",
