@@ -57,9 +57,10 @@ def browse_isolates():
 
 @app.route("/isolate/<isolate_id>")
 def show_isolate(isolate_id):
-    return render_template(
-        "show_isolate.html", isolate=get_isolates(db.session, isolate_id)
-    )
+    isolate = get_isolates(db.session, isolate_id)
+    if not isolate:
+        return render_template("dne.html", isolate_id=isolate_id)
+    return render_template("show_isolate.html", isolate=isolate[0])
 
 
 @app.route("/aliquots")
@@ -69,9 +70,10 @@ def browse_aliquots():
 
 @app.route("/aliquot/<aliquot_id>")
 def show_aliquot(aliquot_id):
-    return render_template(
-        "show_aliquot.html", aliquot=get_aliquots(db.session, aliquot_id)
-    )
+    aliquot = get_aliquots(db.session, aliquot_id)
+    if not aliquot:
+        return render_template("dne.html", aliquot_id=aliquot_id)
+    return render_template("show_aliquot.html", aliquot=aliquot[0])
 
 
 @app.route("/query", methods=["GET", "POST"])

@@ -6,10 +6,10 @@
 {% block body %}
 <body>
   <div class="card m-3">
-    {% if ticket_code is defined %}
-    <p class="m-3">{{ ticket_code }} is not a valid project code.</p>
-    {% elif submission_id is defined %}
-    <p class="m-3">{{ submission_id }} is not a valid submission id.</p>
+    {% if aliquot_id is defined %}
+    <p class="m-3">{{ aliquot_id }} is not a valid aliquot id.</p>
+    {% elif isolate_id is defined %}
+    <p class="m-3">{{ isolate_id }} is not a valid isolate id.</p>
     {% elif message is defined %}
     <p class="m-3">{{ message }}</p>
     {% else %}
