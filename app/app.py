@@ -52,7 +52,6 @@ def index():
 
 @app.route("/isolates")
 def browse_isolates():
-    print(get_isolates(db.session))
     return render_template("browse_isolates.html", isolates=get_isolates(db.session))
 
 
