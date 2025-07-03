@@ -42,13 +42,7 @@
   <script type="text/javascript">
   $(document).ready(function () {
       /* Initialize the DataTable */
-      const oTable = $('#isolates').DataTable({
-          ordering: false,
-          pageLength: 20,
-          lengthChange: false,
-          pagingType: 'full_numbers',
-          stateSave: true,
-      });
+      const oTable = createDataTable('#isolates');
   
       /* Move search box to bottom of summary area */
       $("#isolates_filter").appendTo('#isolates_summary');
@@ -59,7 +53,7 @@
   
       /* Moving the search box breaks the state saving routine */
       /* Redraw manually */
-      oTable.fnDraw();
+      oTable.draw();
   });
   </script>
 {% endblock %}
