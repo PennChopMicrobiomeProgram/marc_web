@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 
 {% block body %}
+<div class="container py-5">
 <div class="d-flex flex-row">
   <div class="d-flex w-50 p-5 m-5 border border-black">
     <form class="d-flex flex-column w-100" method="POST" action="{{ url_for('query') }}">
@@ -22,6 +23,7 @@
     </div>
     {% endfor %}
   </div>
+</div>
 </div>
 
 {% if error is defined %}
@@ -64,12 +66,12 @@
 <script type="text/javascript">
 $(document).ready(function () {
     /* Initialize the DataTable */
-    oTable = $('#results').dataTable({
-        "bSort": false,
-        "iDisplayLength": 20,
-        "bLengthChange": false,
-        "sPaginationType": "full_numbers",
-        "bStateSave": true,
+    const oTable = $('#results').DataTable({
+        ordering: false,
+        pageLength: 20,
+        lengthChange: false,
+        pagingType: 'full_numbers',
+        stateSave: true,
     });
 
     /* Move search box to bottom of summary area */

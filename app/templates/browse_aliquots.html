@@ -34,12 +34,12 @@
   <script type="text/javascript">
   $(document).ready(function () {
       /* Initialize the DataTable */
-      oTable = $('#aliquots').dataTable({
-          "bSort": false,
-          "iDisplayLength": 20,
-          "bLengthChange": false,
-          "sPaginationType": "full_numbers",
-          "bStateSave": true,
+      const oTable = $('#aliquots').DataTable({
+          ordering: false,
+          pageLength: 20,
+          lengthChange: false,
+          pagingType: 'full_numbers',
+          stateSave: true,
       });
   
       /* Move search box to bottom of summary area */
