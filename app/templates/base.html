@@ -51,12 +51,10 @@
   </nav>
 
   <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      document
-        .querySelectorAll('[data-bs-toggle="popover"]')
-        .forEach(function (el) {
-          new bootstrap.Popover(el, { placement: 'top', trigger: 'hover' });
-        });
+    $(document).ready(function () {
+      $('[data-bs-toggle="popover"]').each(function () {
+        new bootstrap.Popover(this, { placement: 'top', trigger: 'hover' });
+      });
     });
   </script>
 
