@@ -1,4 +1,4 @@
-export function createDataTable(selector) {
+function createDataTable(selector) {
   return $(selector).DataTable({
     ordering: false,
     pageLength: 20,
