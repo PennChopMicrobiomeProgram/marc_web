@@ -51,8 +51,10 @@
   </nav>
 
   <script>
-    $(function () {
-      $('[data-toggle="popover"]').popover({placement: 'top', trigger: 'hover'});
+    $(document).ready(function () {
+      $('[data-bs-toggle="popover"]').each(function () {
+        new bootstrap.Popover(this, { placement: 'top', trigger: 'hover' });
+      });
     });
   </script>
 
