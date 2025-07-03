@@ -1,6 +1,6 @@
 import csv
 import os
-from app import __version__
+from app import __version__, get_db_last_sync
 from flask import (
     Flask,
     make_response,
@@ -47,7 +47,12 @@ def favicon():
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    return render_template(
+        "index.html",
+        version=__version__,
+        marc_db_version=marc_db_version,
+        last_sync=get_db_last_sync(),
+    )
 
 
 @app.route("/isolates")
