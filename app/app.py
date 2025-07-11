@@ -14,6 +14,7 @@ from io import StringIO
 from marc_db import __version__ as marc_db_version
 from marc_db.models import Aliquot, Base, Isolate
 from marc_db.views import get_aliquots, get_isolates
+import math
 from pathlib import Path
 from sqlalchemy import text
 from werkzeug.middleware.proxy_fix import ProxyFix
@@ -34,6 +35,20 @@ db.init_app(app)
 
 with app.app_context():
     db.create_all()
+
+
+def paginate_query(query, page: int = 1, page_size: int = 100):
+    """Return items and pagination info for a query."""
+    total = query.count()
+    items = query.offset((page - 1) * page_size).limit(page_size).all()
+    pages = max(math.ceil(total / page_size), 1)
+    return {
+        "items": items,
+        "page": page,
+        "pages": pages,
+        "has_prev": page > 1,
+        "has_next": page < pages,
+    }
 
 
 @app.route("/favicon.ico")
@@ -57,7 +72,14 @@ def index():
 
 @app.route("/isolates")
 def browse_isolates():
-    return render_template("browse_isolates.html", isolates=get_isolates(db.session))
+    page = request.args.get("page", 1, type=int)
+    isolates_query = db.session.query(Isolate)
+    pagination = paginate_query(isolates_query, page=page)
+    return render_template(
+        "browse_isolates.html",
+        isolates=pagination["items"],
+        pagination=pagination,
+    )
 
 
 @app.route("/isolate/<isolate_id>")
@@ -70,7 +92,14 @@ def show_isolate(isolate_id):
 
 @app.route("/aliquots")
 def browse_aliquots():
-    return render_template("browse_aliquots.html", aliquots=get_aliquots(db.session))
+    page = request.args.get("page", 1, type=int)
+    aliquots_query = db.session.query(Aliquot)
+    pagination = paginate_query(aliquots_query, page=page)
+    return render_template(
+        "browse_aliquots.html",
+        aliquots=pagination["items"],
+        pagination=pagination,
+    )
 
 
 @app.route("/aliquot/<aliquot_id>")
