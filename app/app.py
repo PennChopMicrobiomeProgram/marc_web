@@ -14,9 +14,8 @@ from io import StringIO
 from marc_db import __version__ as marc_db_version
 from marc_db.models import Aliquot, Base, Isolate
 from marc_db.views import get_aliquots, get_isolates
-import math
 from pathlib import Path
-from sqlalchemy import text
+from sqlalchemy import text, func, or_, cast, String
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 
@@ -37,17 +36,45 @@ with app.app_context():
     db.create_all()
 
 
-def paginate_query(query, page: int = 1, page_size: int = 100):
-    """Return items and pagination info for a query."""
-    total = query.count()
-    items = query.offset((page - 1) * page_size).limit(page_size).all()
-    pages = max(math.ceil(total / page_size), 1)
+def datatables_response(model):
+    """Return model rows formatted for DataTables server-side processing."""
+    columns = list(model.__table__.columns.keys())
+
+    query = db.session.query(model)
+
+    total_records = query.count()
+
+    search_value = request.args.get("search[value]")
+    if search_value:
+        filters = [cast(getattr(model, c), String).ilike(f"%{search_value}%") for c in columns]
+        query = query.filter(or_(*filters))
+
+    for idx, col in enumerate(columns):
+        val = request.args.get(f"columns[{idx}][search][value]")
+        if val:
+            query = query.filter(cast(getattr(model, col), String).ilike(f"%{val}%"))
+
+    order_idx = request.args.get("order[0][column]")
+    if order_idx is not None:
+        col_name = columns[int(order_idx)]
+        col = getattr(model, col_name)
+        if request.args.get("order[0][dir]", "asc") == "desc":
+            col = col.desc()
+        query = query.order_by(col)
+
+    records_filtered = query.count()
+
+    start = request.args.get("start", 0, type=int)
+    length = request.args.get("length", 20, type=int)
+    rows = query.offset(start).limit(length).all()
+
+    data = [{c: getattr(r, c) for c in columns} for r in rows]
+
     return {
-        "items": items,
-        "page": page,
-        "pages": pages,
-        "has_prev": page > 1,
-        "has_next": page < pages,
+        "draw": int(request.args.get("draw", 1)),
+        "recordsTotal": total_records,
+        "recordsFiltered": records_filtered,
+        "data": data,
     }
 
 
@@ -72,14 +99,12 @@ def index():
 
 @app.route("/isolates")
 def browse_isolates():
-    page = request.args.get("page", 1, type=int)
-    isolates_query = db.session.query(Isolate)
-    pagination = paginate_query(isolates_query, page=page)
-    return render_template(
-        "browse_isolates.html",
-        isolates=pagination["items"],
-        pagination=pagination,
-    )
+    return render_template("browse_isolates.html")
+
+
+@app.route("/api/isolates")
+def api_isolates():
+    return datatables_response(Isolate)
 
 
 @app.route("/isolate/<isolate_id>")
@@ -92,14 +117,12 @@ def show_isolate(isolate_id):
 
 @app.route("/aliquots")
 def browse_aliquots():
-    page = request.args.get("page", 1, type=int)
-    aliquots_query = db.session.query(Aliquot)
-    pagination = paginate_query(aliquots_query, page=page)
-    return render_template(
-        "browse_aliquots.html",
-        aliquots=pagination["items"],
-        pagination=pagination,
-    )
+    return render_template("browse_aliquots.html")
+
+
+@app.route("/api/aliquots")
+def api_aliquots():
+    return datatables_response(Aliquot)
 
 
 @app.route("/aliquot/<aliquot_id>")

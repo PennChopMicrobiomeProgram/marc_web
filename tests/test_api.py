@@ -20,14 +20,17 @@ def test_isolates_page(client):
     assert response.status_code == 200
     assert b"Sample ID" in response.data
 
-    # second page should also load
-    response = client.get("/isolates?page=2")
-    assert response.status_code == 200
+    api_resp = client.get("/api/isolates?draw=1&start=0&length=5")
+    assert api_resp.status_code == 200
+    data = api_resp.get_json()
+    assert "data" in data
 
 
 def test_aliquots_page(client):
     response = client.get("/aliquots")
     assert response.status_code == 200
 
-    response = client.get("/aliquots?page=2")
-    assert response.status_code == 200
+    api_resp = client.get("/api/aliquots?draw=1&start=0&length=5")
+    assert api_resp.status_code == 200
+    data = api_resp.get_json()
+    assert "data" in data
