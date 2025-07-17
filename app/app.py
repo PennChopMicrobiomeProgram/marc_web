@@ -12,7 +12,15 @@ from flask import (
 from flask_sqlalchemy import SQLAlchemy
 from io import StringIO
 from marc_db import __version__ as marc_db_version
-from marc_db.models import Aliquot, Base, Isolate
+from marc_db.models import (
+    Aliquot,
+    Assembly,
+    AssemblyQC,
+    TaxonomicAssignment,
+    Antimicrobial,
+    Base,
+    Isolate,
+)
 from marc_db.views import get_aliquots, get_isolates
 from pathlib import Path
 from sqlalchemy import text
@@ -33,6 +41,21 @@ app.config["SQLALCHEMY_DATABASE_URI"] = SQLALCHEMY_DATABASE_URI
 print(SQLALCHEMY_DATABASE_URI)
 db = SQLAlchemy(model_class=Base)
 db.init_app(app)
+
+# List of all available models for the query page
+MARC_MODELS = [
+    Aliquot,
+    Isolate,
+    Assembly,
+    AssemblyQC,
+    TaxonomicAssignment,
+    Antimicrobial,
+]
+
+# Mapping of model table names to their field names
+MARC_MODEL_FIELDS = {
+    m.__table__.name: [c.name for c in m.__table__.columns] for m in MARC_MODELS
+}
 
 with app.app_context():
     db.create_all()
@@ -109,7 +132,8 @@ def query():
         "query.html",
         query=query_str,
         columns=columns,
-        models=[Aliquot, Isolate],
+        models=MARC_MODELS,
+        model_fields=MARC_MODEL_FIELDS,
         error=error,
     )
 
