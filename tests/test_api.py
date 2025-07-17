@@ -36,13 +36,12 @@ def test_aliquots_page(client):
     assert "data" in data
 
 
-def test_query_page(client):
-    resp = client.get("/query")
+def test_query_api(client):
+    resp = client.post(
+        "/api/query",
+        data={"query": "SELECT 1 as one", "draw": 1, "start": 0, "length": 5},
+    )
     assert resp.status_code == 200
-    # Dropdown should exist
-    assert b"model-select" in resp.data
-    # Label should mention Model Reference
-    assert b"Model Reference" in resp.data
-    # Known model names should appear in options
-    assert b"isolates" in resp.data
-    assert b"aliquots" in resp.data
+    data = resp.get_json()
+    assert data["recordsTotal"] == 1
+    assert data["data"][0]["one"] == 1

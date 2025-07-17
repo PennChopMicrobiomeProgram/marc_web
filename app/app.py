@@ -23,7 +23,9 @@ from marc_db.models import (
 )
 from marc_db.views import get_aliquots, get_isolates
 from pathlib import Path
-from sqlalchemy import text, func, or_, cast, String
+from sqlalchemy import text
+from sqlalchemy import select
+from app.datatables import datatables_response, init_app, query_columns
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 
@@ -57,50 +59,7 @@ MARC_MODEL_FIELDS = {
 
 with app.app_context():
     db.create_all()
-
-
-def datatables_response(model):
-    """Return model rows formatted for DataTables server-side processing."""
-    columns = list(model.__table__.columns.keys())
-
-    query = db.session.query(model)
-
-    total_records = query.count()
-
-    search_value = request.args.get("search[value]")
-    if search_value:
-        filters = [
-            cast(getattr(model, c), String).ilike(f"%{search_value}%") for c in columns
-        ]
-        query = query.filter(or_(*filters))
-
-    for idx, col in enumerate(columns):
-        val = request.args.get(f"columns[{idx}][search][value]")
-        if val:
-            query = query.filter(cast(getattr(model, col), String).ilike(f"%{val}%"))
-
-    order_idx = request.args.get("order[0][column]")
-    if order_idx is not None:
-        col_name = columns[int(order_idx)]
-        col = getattr(model, col_name)
-        if request.args.get("order[0][dir]", "asc") == "desc":
-            col = col.desc()
-        query = query.order_by(col)
-
-    records_filtered = query.count()
-
-    start = request.args.get("start", 0, type=int)
-    length = request.args.get("length", 20, type=int)
-    rows = query.offset(start).limit(length).all()
-
-    data = [{c: getattr(r, c) for c in columns} for r in rows]
-
-    return {
-        "draw": int(request.args.get("draw", 1)),
-        "recordsTotal": total_records,
-        "recordsFiltered": records_filtered,
-        "data": data,
-    }
+    init_app(db)
 
 
 @app.route("/favicon.ico")
@@ -129,7 +88,7 @@ def browse_isolates():
 
 @app.route("/api/isolates")
 def api_isolates():
-    return datatables_response(Isolate)
+    return datatables_response(select(Isolate))
 
 
 @app.route("/isolate/<isolate_id>")
@@ -147,7 +106,7 @@ def browse_aliquots():
 
 @app.route("/api/aliquots")
 def api_aliquots():
-    return datatables_response(Aliquot)
+    return datatables_response(select(Aliquot))
 
 
 @app.route("/aliquot/<aliquot_id>")
@@ -160,52 +119,23 @@ def show_aliquot(aliquot_id):
 
 @app.route("/query", methods=["GET", "POST"])
 def query():
-    if request.method == "GET":
-        return render_template(
-            "query.html",
-            query="",
-            columns=[],
-            rows=[],
-            models=MARC_MODELS,
-            model_fields=MARC_MODEL_FIELDS,
-        )
-    elif request.method == "POST":
-        query = request.form["query"]
-
+    """Render the query form and determine column names for the SQL."""
+    query_str = request.form.get("query", "") if request.method == "POST" else ""
+    columns = []
+    error = None
+    if query_str:
         try:
-            sql = text(query)
-            with app.app_context():
-                result = db.session.execute(sql).fetchall()
+            columns = query_columns(query_str)
         except Exception as e:
-            return render_template(
-                "query.html",
-                query=query,
-                columns=[],
-                rows=[],
-                models=MARC_MODELS,
-                model_fields=MARC_MODEL_FIELDS,
-                error=str(e),
-            )
-
-        if not result:
-            return render_template(
-                "query.html",
-                query=query,
-                columns=[],
-                rows=[],
-                models=MARC_MODELS,
-                model_fields=MARC_MODEL_FIELDS,
-                error="No results found.",
-            )
-
-        return render_template(
-            "query.html",
-            query=query,
-            columns=result[0]._fields,
-            rows=[row._asdict().values() for row in result],
-            models=MARC_MODELS,
-            model_fields=MARC_MODEL_FIELDS,
-        )
+            error = str(e)
+    return render_template(
+        "query.html",
+        query=query_str,
+        columns=columns,
+        models=MARC_MODELS,
+        model_fields=MARC_MODEL_FIELDS,
+        error=error,
+    )
 
 
 @app.route("/download", methods=["POST"])
@@ -233,6 +163,19 @@ def download():
             return response
 
     return redirect("/")
+
+
+@app.route("/api/query", methods=["POST"])
+def api_query():
+    """Return results for a custom SQL query in DataTables format."""
+    query = request.form.get("query")
+    if not query:
+        return {"error": "No query provided"}, 400
+    try:
+        return datatables_response(query)
+    except Exception as e:
+        print(f"Error executing query: {e}")  # Log the full error server-side
+        return {"error": "Query execution failed"}, 500
 
 
 @app.route("/api", methods=["POST"])
