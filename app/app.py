@@ -52,8 +52,7 @@ MARC_MODELS = [
 
 # Mapping of model table names to their field names
 MARC_MODEL_FIELDS = {
-    m.__table__.name: [c.name for c in m.__table__.columns]
-    for m in MARC_MODELS
+    m.__table__.name: [c.name for c in m.__table__.columns] for m in MARC_MODELS
 }
 
 with app.app_context():
