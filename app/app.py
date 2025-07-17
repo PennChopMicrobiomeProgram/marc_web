@@ -17,7 +17,7 @@ from marc_db.views import get_aliquots, get_isolates
 from pathlib import Path
 from sqlalchemy import text
 from sqlalchemy import select
-from app.datatables import datatables_response, init_app
+from app.datatables import datatables_response, init_app, query_columns
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 
@@ -96,12 +96,21 @@ def show_aliquot(aliquot_id):
 
 @app.route("/query", methods=["GET", "POST"])
 def query():
-    """Render the query form. SQL execution happens via AJAX."""
+    """Render the query form and determine column names for the SQL."""
     query_str = request.form.get("query", "") if request.method == "POST" else ""
+    columns = []
+    error = None
+    if query_str:
+        try:
+            columns = query_columns(query_str)
+        except Exception as e:
+            error = str(e)
     return render_template(
         "query.html",
         query=query_str,
+        columns=columns,
         models=[Aliquot, Isolate],
+        error=error,
     )
 
 

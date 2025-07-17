@@ -18,6 +18,17 @@ def _execute_count(q):
     return db.session.scalar(select(func.count()).select_from(q.subquery()))
 
 
+def query_columns(query):
+    """Return column names for a query without fetching data."""
+    if isinstance(query, Select):
+        return [c.key for c in query.selected_columns]
+    if isinstance(query, str):
+        limited_sql = f"SELECT * FROM ({query.rstrip(';')}) AS q LIMIT 0"
+        result = db.session.execute(text(limited_sql))
+        return list(result.keys())
+    raise TypeError("query must be a SQLAlchemy Select or SQL string")
+
+
 def datatables_response(query):
     """Return query results formatted for DataTables server-side processing.
 
@@ -40,7 +51,7 @@ def datatables_response(query):
             .mappings()
             .all()
         )
-        columns = rows[0].keys() if rows else []
+        columns = query_columns(query)
         data = [dict(r) for r in rows]
         return {
             "draw": int(values.get("draw", 1)),

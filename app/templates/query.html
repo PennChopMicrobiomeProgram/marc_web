@@ -41,13 +41,22 @@
     </div>
   </form>
 </div>
-<div>
+<div id="results_summary" class="summary span-24 last">
+  <h2>Query Results</h2>
+</div>
+<div class="d-flex flex-row">
+  <div class="d-flex p-5">
     <table class="display" id="results">
       <thead>
-        <tr></tr>
+        <tr>
+          {% for col in columns %}
+          <th>{{ col }}</th>
+          {% endfor %}
+        </tr>
       </thead>
       <tbody></tbody>
     </table>
+  </div>
 </div>
 
 <script type="text/javascript">
@@ -55,38 +64,17 @@ $(document).ready(function () {
     const sql = `{{ query|tojson|safe }}`;
     if (!sql) return;
 
-    $.post(
-        '{{ url_for('api_query') }}',
-        { query: sql, draw: 1, start: 0, length: 20 },
-        function(resp) {
-            const header = $('#results thead tr');
-            header.empty();
-            resp.columns.forEach(c => header.append(`<th>${c}</th>`));
-            const columns = resp.columns.map(c => ({ data: c }));
+    const columns = {{ columns|tojson }}.map(c => ({ data: c }));
+    const oTable = createServerDataTable('#results', {
+        url: '{{ url_for('api_query') }}',
+        type: 'POST',
+        data: function(d) { d.query = sql; }
+    }, columns);
 
-            $('#results').DataTable({
-                serverSide: true,
-                processing: true,
-                ajax: {
-                    url: '{{ url_for('api_query') }}',
-                    type: 'POST',
-                    data: function(d) { d.query = sql; }
-                },
-                columns: columns,
-                data: resp.data,
-                deferLoading: resp.recordsTotal,
-                pageLength: 20,
-                lengthChange: false,
-                pagingType: 'full_numbers',
-                stateSave: true,
-            });
-
-            $("#results_filter").appendTo('#results_summary');
-            $("#results_info").addClass("span-12");
-            $("#results_paginate").addClass("span-12 last");
-        },
-        'json'
-    );
+    $("#results_filter").appendTo('#results_summary');
+    $("#results_info").addClass("span-12");
+    $("#results_paginate").addClass("span-12 last");
+    oTable.draw();
 });
 </script>
 {% endif %}
