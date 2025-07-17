@@ -42,17 +42,59 @@ def datatables_response(query):
         values = request.values
         start = values.get("start", 0, type=int)
         length = values.get("length", 20, type=int)
-        count_sql = f"SELECT COUNT(*) FROM ({base_sql}) AS q"
-        total_records = db.session.scalar(text(count_sql))
-        records_filtered = total_records
-        paginated_sql = f"{base_sql} LIMIT :limit OFFSET :offset"
-        rows = (
-            db.session.execute(text(paginated_sql), {"limit": length, "offset": start})
-            .mappings()
-            .all()
-        )
+
         columns = query_columns(query)
+        quoted_cols = [f'"{c}"' for c in columns]
+
+        search_value = values.get("search[value]")
+        params = {}
+        filters = []
+
+        if search_value:
+            like = f"%{search_value}%"
+            params["search"] = like
+            filters.append(
+                "("
+                + " OR ".join(
+                    [f"CAST(q.{c} AS TEXT) ILIKE :search" for c in quoted_cols]
+                )
+                + ")"
+            )
+
+        for idx, col in enumerate(columns):
+            val = values.get(f"columns[{idx}][search][value]")
+            if val:
+                params[f"col_{idx}"] = f"%{val}%"
+                filters.append(f'CAST(q."{col}" AS TEXT) ILIKE :col_{idx}')
+
+        base_select = f"SELECT * FROM ({base_sql}) AS q"
+        total_records = db.session.scalar(
+            text(f"SELECT COUNT(*) FROM ({base_sql}) AS q")
+        )
+
+        filtered_sql = base_select
+        if filters:
+            filtered_sql += " WHERE " + " AND ".join(filters)
+
+        records_filtered = db.session.scalar(
+            text(f"SELECT COUNT(*) FROM ({filtered_sql}) AS sq"),
+            params,
+        )
+
+        order_idx = values.get("order[0][column]")
+        if order_idx is not None:
+            col = columns[int(order_idx)]
+            direction = (
+                "DESC" if values.get("order[0][dir]", "asc") == "desc" else "ASC"
+            )
+            filtered_sql += f' ORDER BY "{col}" {direction}'
+
+        paginated_sql = filtered_sql + " LIMIT :limit OFFSET :offset"
+        params.update({"limit": length, "offset": start})
+
+        rows = db.session.execute(text(paginated_sql), params).mappings().all()
         data = [dict(r) for r in rows]
+
         return {
             "draw": int(values.get("draw", 1)),
             "recordsTotal": total_records,
