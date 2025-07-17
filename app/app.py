@@ -150,7 +150,8 @@ def api_query():
     try:
         return datatables_response(query)
     except Exception as e:
-        return {"error": str(e)}, 500
+        print(f"Error executing query: {e}")  # Log the full error server-side
+        return {"error": "Query execution failed"}, 500
 
 
 @app.route("/api", methods=["POST"])
