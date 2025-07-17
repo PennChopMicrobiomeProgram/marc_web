@@ -64,7 +64,7 @@
 
 <script type="text/javascript">
 $(document).ready(function () {
-    const sql = `{{ query|escapejs }}`;
+    const sql = `{{ query|tojson|safe }}`;
     if (!sql) return;
 
     const columns = {{ columns|tojson }}.map(c => ({ data: c }));
