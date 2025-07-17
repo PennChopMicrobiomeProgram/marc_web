@@ -34,3 +34,13 @@ def test_aliquots_page(client):
     assert api_resp.status_code == 200
     data = api_resp.get_json()
     assert "data" in data
+
+
+def test_query_page(client):
+    resp = client.get("/query")
+    assert resp.status_code == 200
+    # Dropdown should exist
+    assert b"model-select" in resp.data
+    # Known model names should appear in options
+    assert b"isolates" in resp.data
+    assert b"aliquots" in resp.data
