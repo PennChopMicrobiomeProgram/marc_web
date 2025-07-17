@@ -46,7 +46,9 @@ def datatables_response(model):
 
     search_value = request.args.get("search[value]")
     if search_value:
-        filters = [cast(getattr(model, c), String).ilike(f"%{search_value}%") for c in columns]
+        filters = [
+            cast(getattr(model, c), String).ilike(f"%{search_value}%") for c in columns
+        ]
         query = query.filter(or_(*filters))
 
     for idx, col in enumerate(columns):
