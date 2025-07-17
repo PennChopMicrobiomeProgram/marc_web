@@ -50,6 +50,12 @@ MARC_MODELS = [
     Antimicrobial,
 ]
 
+# Mapping of model table names to their field names
+MARC_MODEL_FIELDS = {
+    m.__table__.name: [c.name for c in m.__table__.columns]
+    for m in MARC_MODELS
+}
+
 with app.app_context():
     db.create_all()
 
@@ -162,10 +168,7 @@ def query():
             columns=[],
             rows=[],
             models=MARC_MODELS,
-            model_fields={
-                m.__table__.name: [c.name for c in m.__table__.columns]
-                for m in MARC_MODELS
-            },
+            model_fields=MARC_MODEL_FIELDS,
         )
     elif request.method == "POST":
         query = request.form["query"]
@@ -181,10 +184,7 @@ def query():
                 columns=[],
                 rows=[],
                 models=MARC_MODELS,
-                model_fields={
-                    m.__table__.name: [c.name for c in m.__table__.columns]
-                    for m in MARC_MODELS
-                },
+                model_fields=MARC_MODEL_FIELDS,
                 error=str(e),
             )
 
@@ -195,10 +195,7 @@ def query():
                 columns=[],
                 rows=[],
                 models=MARC_MODELS,
-                model_fields={
-                    m.__table__.name: [c.name for c in m.__table__.columns]
-                    for m in MARC_MODELS
-                },
+                model_fields=MARC_MODEL_FIELDS,
                 error="No results found.",
             )
 
@@ -208,10 +205,7 @@ def query():
             columns=result[0]._fields,
             rows=[row._asdict().values() for row in result],
             models=MARC_MODELS,
-            model_fields={
-                m.__table__.name: [c.name for c in m.__table__.columns]
-                for m in MARC_MODELS
-            },
+            model_fields=MARC_MODEL_FIELDS,
         )
 
 

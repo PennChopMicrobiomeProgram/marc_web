@@ -12,7 +12,11 @@
   </div>
 
   <div class="d-flex flex-column w-50 p-5 m-5">
-    <label for="model-select" class="form-label">Model</label>
+    <label for="model-select" class="form-label">
+      Model Reference
+      <i class="bi bi-question-circle" tabindex="0" data-bs-toggle="popover"
+         data-bs-content="Select a model to view its fields. Use these field names to build custom SQL queries."></i>
+    </label>
     <select id="model-select" class="form-select">
       {% for model in models %}
       <option value="{{ model.__table__.name }}">{{ model.__table__.name }}</option>

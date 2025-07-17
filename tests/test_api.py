@@ -41,6 +41,8 @@ def test_query_page(client):
     assert resp.status_code == 200
     # Dropdown should exist
     assert b"model-select" in resp.data
+    # Label should mention Model Reference
+    assert b"Model Reference" in resp.data
     # Known model names should appear in options
     assert b"isolates" in resp.data
     assert b"aliquots" in resp.data
