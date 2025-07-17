@@ -15,7 +15,7 @@ from marc_db import __version__ as marc_db_version
 from marc_db.models import Aliquot, Base, Isolate
 from marc_db.views import get_aliquots, get_isolates
 from pathlib import Path
-from sqlalchemy import text
+from sqlalchemy import text, func, or_, cast, String
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 
@@ -34,6 +34,50 @@ db.init_app(app)
 
 with app.app_context():
     db.create_all()
+
+
+def datatables_response(model):
+    """Return model rows formatted for DataTables server-side processing."""
+    columns = list(model.__table__.columns.keys())
+
+    query = db.session.query(model)
+
+    total_records = query.count()
+
+    search_value = request.args.get("search[value]")
+    if search_value:
+        filters = [
+            cast(getattr(model, c), String).ilike(f"%{search_value}%") for c in columns
+        ]
+        query = query.filter(or_(*filters))
+
+    for idx, col in enumerate(columns):
+        val = request.args.get(f"columns[{idx}][search][value]")
+        if val:
+            query = query.filter(cast(getattr(model, col), String).ilike(f"%{val}%"))
+
+    order_idx = request.args.get("order[0][column]")
+    if order_idx is not None:
+        col_name = columns[int(order_idx)]
+        col = getattr(model, col_name)
+        if request.args.get("order[0][dir]", "asc") == "desc":
+            col = col.desc()
+        query = query.order_by(col)
+
+    records_filtered = query.count()
+
+    start = request.args.get("start", 0, type=int)
+    length = request.args.get("length", 20, type=int)
+    rows = query.offset(start).limit(length).all()
+
+    data = [{c: getattr(r, c) for c in columns} for r in rows]
+
+    return {
+        "draw": int(request.args.get("draw", 1)),
+        "recordsTotal": total_records,
+        "recordsFiltered": records_filtered,
+        "data": data,
+    }
 
 
 @app.route("/favicon.ico")
@@ -57,7 +101,12 @@ def index():
 
 @app.route("/isolates")
 def browse_isolates():
-    return render_template("browse_isolates.html", isolates=get_isolates(db.session))
+    return render_template("browse_isolates.html")
+
+
+@app.route("/api/isolates")
+def api_isolates():
+    return datatables_response(Isolate)
 
 
 @app.route("/isolate/<isolate_id>")
@@ -70,7 +119,12 @@ def show_isolate(isolate_id):
 
 @app.route("/aliquots")
 def browse_aliquots():
-    return render_template("browse_aliquots.html", aliquots=get_aliquots(db.session))
+    return render_template("browse_aliquots.html")
+
+
+@app.route("/api/aliquots")
+def api_aliquots():
+    return datatables_response(Aliquot)
 
 
 @app.route("/aliquot/<aliquot_id>")

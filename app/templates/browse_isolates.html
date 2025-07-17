@@ -10,7 +10,7 @@
     <table class="display" id="isolates">
       <thead>
         <tr>
-          <th>&nbsp;</th>
+          <th>Sample ID</th>
           <th>Received Date</th>
           <th>Cryobanking Date</th>
           <th>Subject ID</th>
@@ -20,29 +20,25 @@
           <th>Special Collection</th>
         </tr>
       </thead>
-      
-      <tbody>
-        {% for iso in isolates %}
-        <tr>
-          <td><a href="{{ url_for('show_isolate', isolate_id=iso.id) }}">{{ iso.id }}</a></td>
-          <td><span class="date">{{ iso.received_date }}</span></td>
-          <td><span class="date">{{ iso.cryobanking_date }}</span></td>
-          <td><nobr>{{ iso.subject_id }}</nobr></td>
-          <td>{{ iso.specimen_id }}</td>
-          <td>{{ iso.source }}</td>
-          <td>{{ iso.suspected_organism }}</td>
-          <td>{{ iso.special_collection }}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
+      <tbody></tbody>
     </table>
   </div>
 </div>
   
   <script type="text/javascript">
   $(document).ready(function () {
-      /* Initialize the DataTable */
-      const oTable = createDataTable('#isolates');
+      /* Initialize the DataTable with server-side processing */
+      const isolateUrl = "{{ url_for('show_isolate', isolate_id='') }}";
+      const oTable = createServerDataTable('#isolates', '{{ url_for('api_isolates') }}', [
+          { data: 'sample_id', render: function(d, type, row) { return '<a href="' + isolateUrl + d + '">' + d + '</a>'; } },
+          { data: 'received_date' },
+          { data: 'cryobanking_date' },
+          { data: 'subject_id' },
+          { data: 'specimen_id' },
+          { data: 'source' },
+          { data: 'suspected_organism' },
+          { data: 'special_collection' }
+      ]);
   
       /* Move search box to bottom of summary area */
       $("#isolates_filter").appendTo('#isolates_summary');
