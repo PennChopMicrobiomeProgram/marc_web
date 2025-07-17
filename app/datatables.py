@@ -81,9 +81,9 @@ def datatables_response(query):
             params,
         )
 
-        order_idx = values.get("order[0][column]")
-        if order_idx is not None:
-            col = columns[int(order_idx)]
+        order_idx = values.get("order[0][column]", type=int)
+        if order_idx is not None and 0 <= order_idx < len(columns):
+            col = columns[order_idx]
             direction = (
                 "DESC" if values.get("order[0][dir]", "asc") == "desc" else "ASC"
             )
