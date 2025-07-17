@@ -15,7 +15,9 @@ from marc_db import __version__ as marc_db_version
 from marc_db.models import Aliquot, Base, Isolate
 from marc_db.views import get_aliquots, get_isolates
 from pathlib import Path
-from sqlalchemy import text, func, or_, cast, String
+from sqlalchemy import text
+from sqlalchemy import select
+from app.datatables import datatables_response, init_app
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 
@@ -34,50 +36,7 @@ db.init_app(app)
 
 with app.app_context():
     db.create_all()
-
-
-def datatables_response(model):
-    """Return model rows formatted for DataTables server-side processing."""
-    columns = list(model.__table__.columns.keys())
-
-    query = db.session.query(model)
-
-    total_records = query.count()
-
-    search_value = request.args.get("search[value]")
-    if search_value:
-        filters = [
-            cast(getattr(model, c), String).ilike(f"%{search_value}%") for c in columns
-        ]
-        query = query.filter(or_(*filters))
-
-    for idx, col in enumerate(columns):
-        val = request.args.get(f"columns[{idx}][search][value]")
-        if val:
-            query = query.filter(cast(getattr(model, col), String).ilike(f"%{val}%"))
-
-    order_idx = request.args.get("order[0][column]")
-    if order_idx is not None:
-        col_name = columns[int(order_idx)]
-        col = getattr(model, col_name)
-        if request.args.get("order[0][dir]", "asc") == "desc":
-            col = col.desc()
-        query = query.order_by(col)
-
-    records_filtered = query.count()
-
-    start = request.args.get("start", 0, type=int)
-    length = request.args.get("length", 20, type=int)
-    rows = query.offset(start).limit(length).all()
-
-    data = [{c: getattr(r, c) for c in columns} for r in rows]
-
-    return {
-        "draw": int(request.args.get("draw", 1)),
-        "recordsTotal": total_records,
-        "recordsFiltered": records_filtered,
-        "data": data,
-    }
+    init_app(db)
 
 
 @app.route("/favicon.ico")
@@ -106,7 +65,7 @@ def browse_isolates():
 
 @app.route("/api/isolates")
 def api_isolates():
-    return datatables_response(Isolate)
+    return datatables_response(select(Isolate))
 
 
 @app.route("/isolate/<isolate_id>")
@@ -124,7 +83,7 @@ def browse_aliquots():
 
 @app.route("/api/aliquots")
 def api_aliquots():
-    return datatables_response(Aliquot)
+    return datatables_response(select(Aliquot))
 
 
 @app.route("/aliquot/<aliquot_id>")
@@ -137,48 +96,13 @@ def show_aliquot(aliquot_id):
 
 @app.route("/query", methods=["GET", "POST"])
 def query():
-    if request.method == "GET":
-        return render_template(
-            "query.html",
-            query="",
-            columns=[],
-            rows=[],
-            models=[Aliquot, Isolate],
-        )
-    elif request.method == "POST":
-        query = request.form["query"]
-
-        try:
-            sql = text(query)
-            with app.app_context():
-                result = db.session.execute(sql).fetchall()
-        except Exception as e:
-            return render_template(
-                "query.html",
-                query=query,
-                columns=[],
-                rows=[],
-                models=[Aliquot, Isolate],
-                error=str(e),
-            )
-
-        if not result:
-            return render_template(
-                "query.html",
-                query=query,
-                columns=[],
-                rows=[],
-                models=[Aliquot, Isolate],
-                error="No results found.",
-            )
-
-        return render_template(
-            "query.html",
-            query=query,
-            columns=result[0]._fields,
-            rows=[row._asdict().values() for row in result],
-            models=[Aliquot, Isolate],
-        )
+    """Render the query form. SQL execution happens via AJAX."""
+    query_str = request.form.get("query", "") if request.method == "POST" else ""
+    return render_template(
+        "query.html",
+        query=query_str,
+        models=[Aliquot, Isolate],
+    )
 
 
 @app.route("/download", methods=["POST"])
@@ -206,6 +130,18 @@ def download():
             return response
 
     return redirect("/")
+
+
+@app.route("/api/query", methods=["POST"])
+def api_query():
+    """Return results for a custom SQL query in DataTables format."""
+    query = request.form.get("query")
+    if not query:
+        return {"error": "No query provided"}, 400
+    try:
+        return datatables_response(query)
+    except Exception as e:
+        return {"error": str(e)}, 500
 
 
 @app.route("/api", methods=["POST"])

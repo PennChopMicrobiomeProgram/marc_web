@@ -34,3 +34,14 @@ def test_aliquots_page(client):
     assert api_resp.status_code == 200
     data = api_resp.get_json()
     assert "data" in data
+
+
+def test_query_api(client):
+    resp = client.post(
+        "/api/query",
+        data={"query": "SELECT 1 as one", "draw": 1, "start": 0, "length": 5},
+    )
+    assert resp.status_code == 200
+    data = resp.get_json()
+    assert data["recordsTotal"] == 1
+    assert data["data"][0]["one"] == 1

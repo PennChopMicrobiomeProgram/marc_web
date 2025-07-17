@@ -32,7 +32,7 @@
 </div>
 {% endif %}
 
-{% if columns %}
+{% if query %}
 <div class="d-flex w-50 px-5">
   <form action="{{ '/download' }}" method="POST" enctype="multipart/form-data">
     <div class="form-group">
@@ -44,40 +44,49 @@
 <div>
     <table class="display" id="results">
       <thead>
-        <tr>
-          {% for col in columns %}
-          <th>{{ col }}</th>
-          {% endfor %}
-        </tr>
+        <tr></tr>
       </thead>
-      
-      <tbody>
-        {% for row in rows %}
-        <tr>
-          {% for item in row %}
-          <td>{{ item }}</td>
-          {% endfor %}
-        </tr>
-        {% endfor %}
-      </tbody>
+      <tbody></tbody>
     </table>
 </div>
 
 <script type="text/javascript">
 $(document).ready(function () {
-    /* Initialize the DataTable */
-    const oTable = createDataTable('#results');
+    const sql = `{{ query|tojson|safe }}`;
+    if (!sql) return;
 
-    /* Move search box to bottom of summary area */
-    $("#results_filter").appendTo('#results_summary');
+    $.post(
+        '{{ url_for('api_query') }}',
+        { query: sql, draw: 1, start: 0, length: 20 },
+        function(resp) {
+            const header = $('#results thead tr');
+            header.empty();
+            resp.columns.forEach(c => header.append(`<th>${c}</th>`));
+            const columns = resp.columns.map(c => ({ data: c }));
 
-    /* Snap pagination info to grid */
-    $("#results_info").addClass("span-12");
-    $("#results_paginate").addClass("span-12 last")
+            $('#results').DataTable({
+                serverSide: true,
+                processing: true,
+                ajax: {
+                    url: '{{ url_for('api_query') }}',
+                    type: 'POST',
+                    data: function(d) { d.query = sql; }
+                },
+                columns: columns,
+                data: resp.data,
+                deferLoading: resp.recordsTotal,
+                pageLength: 20,
+                lengthChange: false,
+                pagingType: 'full_numbers',
+                stateSave: true,
+            });
 
-    /* Moving the search box breaks the state saving routine */
-    /* Redraw manually */
-    oTable.draw();
+            $("#results_filter").appendTo('#results_summary');
+            $("#results_info").addClass("span-12");
+            $("#results_paginate").addClass("span-12 last");
+        },
+        'json'
+    );
 });
 </script>
 {% endif %}
