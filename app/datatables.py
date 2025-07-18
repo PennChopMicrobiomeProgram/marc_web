@@ -50,22 +50,33 @@ def datatables_response(query):
         params = {}
         filters = []
 
+        dialect = db.engine.dialect.name
         if search_value:
-            like = f"%{search_value}%"
-            params["search"] = like
-            filters.append(
-                "("
-                + " OR ".join(
-                    [f"CAST(q.{c} AS TEXT) ILIKE :search" for c in quoted_cols]
-                )
-                + ")"
+            like_op = "ILIKE" if dialect == "postgresql" else "LIKE"
+            like = (
+                f"%{search_value.lower()}%"
+                if like_op == "LIKE"
+                else f"%{search_value}%"
             )
+            params["search"] = like
+            exprs = []
+            for c in quoted_cols:
+                col_expr = f"CAST(q.{c} AS TEXT)"
+                if like_op == "LIKE":
+                    col_expr = f"LOWER({col_expr})"
+                exprs.append(f"{col_expr} {like_op} :search")
+            filters.append("(" + " OR ".join(exprs) + ")")
 
         for idx, col in enumerate(columns):
             val = values.get(f"columns[{idx}][search][value]")
             if val:
-                params[f"col_{idx}"] = f"%{val}%"
-                filters.append(f'CAST(q."{col}" AS TEXT) ILIKE :col_{idx}')
+                like_op = "ILIKE" if dialect == "postgresql" else "LIKE"
+                like = f"%{val.lower()}%" if like_op == "LIKE" else f"%{val}%"
+                params[f"col_{idx}"] = like
+                col_expr = f'CAST(q."{col}" AS TEXT)'
+                if like_op == "LIKE":
+                    col_expr = f"LOWER({col_expr})"
+                filters.append(f"{col_expr} {like_op} :col_{idx}")
 
         base_select = f"SELECT * FROM ({base_sql}) AS q"
         total_records = db.session.scalar(
@@ -106,8 +117,9 @@ def datatables_response(query):
     if not isinstance(query, Select):
         raise TypeError("query must be a SQLAlchemy Select, Query, or SQL string")
 
+    # Ensure ORM selections return column mappings instead of model objects
     columns = [c.key for c in query.selected_columns]
-    base_query = query
+    base_query = query.with_only_columns(query.selected_columns)
     total_records = _execute_count(base_query)
 
     values = request.values
