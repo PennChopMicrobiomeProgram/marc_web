@@ -117,8 +117,9 @@ def datatables_response(query):
     if not isinstance(query, Select):
         raise TypeError("query must be a SQLAlchemy Select, Query, or SQL string")
 
+    # Ensure ORM selections return column mappings instead of model objects
     columns = [c.key for c in query.selected_columns]
-    base_query = query
+    base_query = query.with_only_columns(query.selected_columns)
     total_records = _execute_count(base_query)
 
     values = request.values
