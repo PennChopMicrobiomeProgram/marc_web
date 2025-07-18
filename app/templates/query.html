@@ -1,12 +1,23 @@
 {% extends 'base.html' %}
 
+{% block head %}
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.14/codemirror.min.css" integrity="sha384-zaeBlB/vwYsDRSlFajnDd7OydJ0cWk+c2OWybl3eSUf6hW2EbhlCsQPqKr3gkznT" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.14/addon/hint/show-hint.min.css" integrity="sha384-TU/qRI67N04B589luYdn1ZMRIGgJic3GB1WsvLJTRh92VO26vpxI4dCKiDtsR4fw" crossorigin="anonymous">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.14/codemirror.min.js" integrity="sha384-etl3CBZukqWrVg3VFnSxRIEjaeOJLzTxWK7TPk/klS4l9MNGGr6lptVNs7N2pRoy" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.14/mode/sql/sql.min.js" integrity="sha384-0uq6A2QqmgmRGhd86vTHGFSpPgWWSMh3F1JDgMohYMKXxt+YP/ogivHjVGGn3hAb" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.14/addon/hint/show-hint.min.js" integrity="sha384-WmEJUmIUFrVWqznkNFnAW2/vQ9X3VlvhPDvttjgqECGqnBrcZckvN2xxYVXLRjpv" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.14/addon/hint/sql-hint.min.js" integrity="sha384-/zA48l8PZlHrlpopG1QN+WL/Oaz3gRw2c4u4xMFMF6u9qtk2nJyGgpTDVhljcPDK" crossorigin="anonymous"></script>
+  <script src="{{ url_for('static', filename='query_editor.js') }}"></script>
+{% endblock %}
+
 {% block body %}
 <div class="container py-5">
 <div class="d-flex flex-row">
   <div class="d-flex w-50 p-5 m-5 border border-black">
     <form class="d-flex flex-column w-100" method="POST" action="{{ url_for('query') }}">
       <label class="p-2">Custom Query</label>
-      <textarea id="query" name="query" class="w-100 p-2" rows="10">{{ query }}</textarea>
+      <input type="hidden" id="query-input" name="query" value="{{ query }}">
+      <div id="query-editor" class="w-100 border" style="height: 300px;"></div>
       <button type="submit" id="submit" class="my-2 p-2">Submit</button>
     </form>
   </div>
@@ -83,6 +94,7 @@ $(document).ready(function () {
 {% endif %}
 <script type="text/javascript">
   const modelFields = {{ model_fields | tojson }};
+
   function updateFields() {
     const selected = $("#model-select").val();
     const fields = modelFields[selected] || [];
@@ -92,9 +104,11 @@ $(document).ready(function () {
       list.append($("<li>").text(f));
     }
   }
+
   $("#model-select").on("change", updateFields);
   $(document).ready(function () {
     updateFields();
+    window.queryEditor = initQueryEditor('query-editor', 'query-input', modelFields);
   });
 </script>
 {% endblock %}
