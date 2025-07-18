@@ -1,12 +1,12 @@
 {% extends 'base.html' %}
 
 {% block head %}
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.14/codemirror.min.css" integrity="sha512-/Fkzb5V4TXN0Wh05rq6ArlTc95xJMu38xpv8uKXuX4nHCqB6f+GO6zkRgZNpmjDoE7YQDdyCjTiMQuYzfoalYg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.14/addon/hint/show-hint.min.css" integrity="sha512-rJEqXWiwxupCSvJzpuG1HsfrN7kYMva9n32CuWHa3gwxObn2ymlk/wEYBLETymFcpnSUsctNkYheAQ7Ez+KJAA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.14/codemirror.min.js" integrity="sha512-+KDgj6/mswHxZ34rnOG0r8QwMCKa2QW2LaxhUJW6Ka7O5Kb/6VQwWi4KFOeFHrgb3R04QLbTjaCj1eO0MJdAig==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.14/mode/sql/sql.min.js" integrity="sha512-KEuWiRiwXQDq6rqcQXWfBsB1bt0osLOYTdSd5quN4dStEUAkknvXqZ/xJz5lG1fV64D7Bqjofu5pY88MtXH8mw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.14/addon/hint/show-hint.min.js" integrity="sha512-Y3xJEBhDigw1VE3DybZ0SqnX+ANXoy2cuglRez2oJ6TP2PzefDs2fzGEylh4G6dkprdFM5lTyBC0bYKT1eZq9w==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.14/addon/hint/sql-hint.min.js" integrity="sha512-qLCRa14Q6gttYVOlJawVSdGInxjeRGna43EIBgzHuLlHotE5RX7V6czS4fFqqpwPIYOvTo95OfzmiEJeZVrDQA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.14/codemirror.min.css" integrity="sha384-zaeBlB/vwYsDRSlFajnDd7OydJ0cWk+c2OWybl3eSUf6hW2EbhlCsQPqKr3gkznT" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.14/addon/hint/show-hint.min.css" integrity="sha384-TU/qRI67N04B589luYdn1ZMRIGgJic3GB1WsvLJTRh92VO26vpxI4dCKiDtsR4fw" crossorigin="anonymous">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.14/codemirror.min.js" integrity="sha384-etl3CBZukqWrVg3VFnSxRIEjaeOJLzTxWK7TPk/klS4l9MNGGr6lptVNs7N2pRoy" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.14/mode/sql/sql.min.js" integrity="sha384-0uq6A2QqmgmRGhd86vTHGFSpPgWWSMh3F1JDgMohYMKXxt+YP/ogivHjVGGn3hAb" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.14/addon/hint/show-hint.min.js" integrity="sha384-WmEJUmIUFrVWqznkNFnAW2/vQ9X3VlvhPDvttjgqECGqnBrcZckvN2xxYVXLRjpv" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.14/addon/hint/sql-hint.min.js" integrity="sha384-/zA48l8PZlHrlpopG1QN+WL/Oaz3gRw2c4u4xMFMF6u9qtk2nJyGgpTDVhljcPDK" crossorigin="anonymous"></script>
   <script src="{{ url_for('static', filename='query_editor.js') }}"></script>
 {% endblock %}
 
