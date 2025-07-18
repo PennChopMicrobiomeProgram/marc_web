@@ -16,7 +16,8 @@
   <div class="d-flex w-50 p-5 m-5 border border-black">
     <form class="d-flex flex-column w-100" method="POST" action="{{ url_for('query') }}">
       <label class="p-2">Custom Query</label>
-      <textarea id="query" name="query" class="w-100 p-2" rows="10">{{ query }}</textarea>
+      <input type="hidden" id="query-input" name="query" value="{{ query }}">
+      <div id="query-editor" class="w-100 border" style="height: 300px;"></div>
       <button type="submit" id="submit" class="my-2 p-2">Submit</button>
     </form>
   </div>
@@ -107,7 +108,7 @@ $(document).ready(function () {
   $("#model-select").on("change", updateFields);
   $(document).ready(function () {
     updateFields();
-    window.queryEditor = initQueryEditor('query', modelFields);
+    window.queryEditor = initQueryEditor('query-editor', 'query-input', modelFields);
   });
 </script>
 {% endblock %}
