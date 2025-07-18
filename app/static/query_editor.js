@@ -8,6 +8,12 @@ function initQueryEditor(containerId, hiddenInputId, tables) {
     hintOptions: { tables: tables },
   });
 
+  editor.on("inputRead", function (cm, change) {
+    if (change.origin !== "setValue") {
+      CodeMirror.commands.autocomplete(cm, null, { completeSingle: false });
+    }
+  });
+
   editor.on("change", function (cm) {
     input.value = cm.getValue();
   });
