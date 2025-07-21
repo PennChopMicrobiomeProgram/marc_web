@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block body %}
+<div id="taxonomic_assignments_summary" class="summary span-24 last">
+  <h2>Taxonomic Assignments</h2>
+</div>
+
+<div class="d-flex flex-row">
+  <div class="d-flex p-5">
+    <table class="display" id="taxonomic_assignments">
+      <thead>
+        <tr>
+          <th>Assembly ID</th>
+          <th>Isolate ID</th>
+          <th>Taxonomic Classification</th>
+          <th>Taxonomic Abundance</th>
+          <th>ST</th>
+          <th>ST Schema</th>
+          <th>Allele Assignment</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</div>
+
+<script type="text/javascript">
+$(document).ready(function () {
+    const oTable = createServerDataTable('#taxonomic_assignments', '{{ url_for('api_taxonomic_assignments') }}', [
+        { data: 'assembly_id' },
+        { data: 'isolate_id' },
+        { data: 'taxonomic_classification' },
+        { data: 'taxonomic_abundance' },
+        { data: 'st' },
+        { data: 'st_schema' },
+        { data: 'allele_assignment' }
+    ]);
+
+    $('#taxonomic_assignments_filter').appendTo('#taxonomic_assignments_summary');
+    $('#taxonomic_assignments_info').addClass('span-12');
+    $('#taxonomic_assignments_paginate').addClass('span-12 last');
+    oTable.draw();
+});
+</script>
+{% endblock %}

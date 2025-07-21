@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block body %}
+<div id="antimicrobials_summary" class="summary span-24 last">
+  <h2>Antimicrobials</h2>
+</div>
+
+<div class="d-flex flex-row">
+  <div class="d-flex p-5">
+    <table class="display" id="antimicrobials">
+      <thead>
+        <tr>
+          <th>Assembly ID</th>
+          <th>Isolate ID</th>
+          <th>Contig ID</th>
+          <th>Gene Symbol</th>
+          <th>Gene Name</th>
+          <th>Accession</th>
+          <th>Element Type</th>
+          <th>Resistance Product</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</div>
+
+<script type="text/javascript">
+$(document).ready(function () {
+    const oTable = createServerDataTable('#antimicrobials', '{{ url_for('api_antimicrobials') }}', [
+        { data: 'assembly_id' },
+        { data: 'isolate_id' },
+        { data: 'contig_id' },
+        { data: 'gene_symbol' },
+        { data: 'gene_name' },
+        { data: 'accession' },
+        { data: 'element_type' },
+        { data: 'resistance_product' }
+    ]);
+
+    $('#antimicrobials_filter').appendTo('#antimicrobials_summary');
+    $('#antimicrobials_info').addClass('span-12');
+    $('#antimicrobials_paginate').addClass('span-12 last');
+    oTable.draw();
+});
+</script>
+{% endblock %}
