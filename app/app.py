@@ -117,6 +117,46 @@ def show_aliquot(aliquot_id):
     return render_template("show_aliquot.html", aliquot=aliquot[0])
 
 
+@app.route("/assemblies")
+def browse_assemblies():
+    return render_template("browse_assemblies.html")
+
+
+@app.route("/api/assemblies")
+def api_assemblies():
+    return datatables_response(select(Assembly))
+
+
+@app.route("/assembly_qc")
+def browse_assembly_qc():
+    return render_template("browse_assembly_qc.html")
+
+
+@app.route("/api/assembly_qc")
+def api_assembly_qc():
+    return datatables_response(select(AssemblyQC))
+
+
+@app.route("/taxonomic_assignments")
+def browse_taxonomic_assignments():
+    return render_template("browse_taxonomic_assignments.html")
+
+
+@app.route("/api/taxonomic_assignments")
+def api_taxonomic_assignments():
+    return datatables_response(select(TaxonomicAssignment))
+
+
+@app.route("/antimicrobials")
+def browse_antimicrobials():
+    return render_template("browse_antimicrobials.html")
+
+
+@app.route("/api/antimicrobials")
+def api_antimicrobials():
+    return datatables_response(select(Antimicrobial))
+
+
 @app.route("/query", methods=["GET", "POST"])
 def query():
     """Render the query form and determine column names for the SQL."""

@@ -36,6 +36,25 @@ def test_aliquots_page(client):
     assert "data" in data
 
 
+@pytest.mark.parametrize(
+    "page,api_endpoint",
+    [
+        ("/assemblies", "/api/assemblies"),
+        ("/assembly_qc", "/api/assembly_qc"),
+        ("/taxonomic_assignments", "/api/taxonomic_assignments"),
+        ("/antimicrobials", "/api/antimicrobials"),
+    ],
+)
+def test_assembly_tables(client, page, api_endpoint):
+    resp = client.get(page)
+    assert resp.status_code == 200
+
+    api_resp = client.get(f"{api_endpoint}?draw=1&start=0&length=5")
+    assert api_resp.status_code == 200
+    data = api_resp.get_json()
+    assert "data" in data
+
+
 def test_query_api(client):
     resp = client.post(
         "/api/query",

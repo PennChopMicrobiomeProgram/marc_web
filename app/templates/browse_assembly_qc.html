@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block body %}
+<div id="assembly_qc_summary" class="summary span-24 last">
+  <h2>Assembly QC</h2>
+</div>
+
+<div class="d-flex flex-row">
+  <div class="d-flex p-5">
+    <table class="display" id="assembly_qc">
+      <thead>
+        <tr>
+          <th>Assembly ID</th>
+          <th>Isolate ID</th>
+          <th>Contig Count</th>
+          <th>Genome Size</th>
+          <th>N50</th>
+          <th>GC Content</th>
+          <th>CDS</th>
+          <th>Completeness</th>
+          <th>Contamination</th>
+          <th>Min Contig Coverage</th>
+          <th>Avg Contig Coverage</th>
+          <th>Max Contig Coverage</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</div>
+
+<script type="text/javascript">
+$(document).ready(function () {
+    const oTable = createServerDataTable('#assembly_qc', '{{ url_for('api_assembly_qc') }}', [
+        { data: 'assembly_id' },
+        { data: 'isolate_id' },
+        { data: 'contig_count' },
+        { data: 'genome_size' },
+        { data: 'n50' },
+        { data: 'gc_content' },
+        { data: 'cds' },
+        { data: 'completeness' },
+        { data: 'contamination' },
+        { data: 'min_contig_coverage' },
+        { data: 'avg_contig_coverage' },
+        { data: 'max_contig_coverage' }
+    ]);
+
+    $('#assembly_qc_filter').appendTo('#assembly_qc_summary');
+    $('#assembly_qc_info').addClass('span-12');
+    $('#assembly_qc_paginate').addClass('span-12 last');
+    oTable.draw();
+});
+</script>
+{% endblock %}

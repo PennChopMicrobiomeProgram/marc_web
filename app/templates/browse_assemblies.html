@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block body %}
+<div id="assemblies_summary" class="summary span-24 last">
+  <h2>Assemblies</h2>
+</div>
+
+<div class="d-flex flex-row">
+  <div class="d-flex p-5">
+    <table class="display" id="assemblies">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Isolate ID</th>
+          <th>Metagenomic Sample ID</th>
+          <th>Metagenomic Run ID</th>
+          <th>Run Number</th>
+          <th>Sunbeam Version</th>
+          <th>SBX SGA Version</th>
+          <th>Config File</th>
+          <th>Sunbeam Output Path</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</div>
+
+<script type="text/javascript">
+$(document).ready(function () {
+    const oTable = createServerDataTable('#assemblies', '{{ url_for('api_assemblies') }}', [
+        { data: 'id' },
+        { data: 'isolate_id' },
+        { data: 'metagenomic_sample_id' },
+        { data: 'metagenomic_run_id' },
+        { data: 'run_number' },
+        { data: 'sunbeam_version' },
+        { data: 'sbx_sga_version' },
+        { data: 'config_file' },
+        { data: 'sunbeam_output_path' }
+    ]);
+
+    $('#assemblies_filter').appendTo('#assemblies_summary');
+    $('#assemblies_info').addClass('span-12');
+    $('#assemblies_paginate').addClass('span-12 last');
+    oTable.draw();
+});
+</script>
+{% endblock %}
