@@ -64,3 +64,11 @@ def test_query_api(client):
     data = resp.get_json()
     assert data["recordsTotal"] == 1
     assert data["data"][0]["one"] == 1
+
+
+def test_nl_query_api(client):
+    resp = client.post("/api/nl_query", data={"query": "How many isolates are there?"})
+    assert resp.status_code == 200
+    data = resp.get_json()
+    assert data["sql"] == "SELECT COUNT(*) AS count FROM isolates"
+    assert data["result"][0]["count"] == 0
