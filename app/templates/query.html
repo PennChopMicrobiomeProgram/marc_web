@@ -8,13 +8,14 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.14/addon/hint/show-hint.min.js" integrity="sha384-WmEJUmIUFrVWqznkNFnAW2/vQ9X3VlvhPDvttjgqECGqnBrcZckvN2xxYVXLRjpv" crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.14/addon/hint/sql-hint.min.js" integrity="sha384-/zA48l8PZlHrlpopG1QN+WL/Oaz3gRw2c4u4xMFMF6u9qtk2nJyGgpTDVhljcPDK" crossorigin="anonymous"></script>
   <script src="{{ url_for('static', filename='query_editor.js') }}"></script>
-{% endblock %}
+  {% endblock %}
+
 
 {% block body %}
 <div class="container py-2">
   <div class="row">
     <div class="col-md-4 p-2">
-      <form class="d-flex flex-column w-100" method="POST" action="{{ url_for('query') }}">
+      <form id="query-form" class="d-flex flex-column w-100" method="POST" action="{{ url_for('query') }}">
         <label class="p-2">Custom Query</label>
         <input type="hidden" id="query-input" name="query" value="{{ query }}">
         <div id="query-editor" class="w-100 border" style="height: 300px;"></div>
@@ -23,7 +24,7 @@
     </div>
 
     <div class="col-md-4 p-2">
-      <form class="d-flex flex-column" method="POST" action="{{ url_for('api_nl_query') }}">
+      <form id="nl-query-form" class="d-flex flex-column" method="POST" action="{{ url_for('api_nl_query') }}">
         <label for="prompt" class="form-label">
           Natural Language Query
           <i class="bi bi-question-circle" tabindex="0" data-bs-toggle="popover"
@@ -124,6 +125,46 @@ $(document).ready(function () {
   $(document).ready(function () {
     updateFields();
     window.queryEditor = initQueryEditor('query-editor', 'query-input', modelFields);
+  });
+</script>
+<script type="text/javascript">
+  document.addEventListener('DOMContentLoaded', () => {
+    const nlForm = document.getElementById('nl-query-form');
+    const queryForm = document.getElementById('query-form');
+    const queryInput = document.getElementById('query-input');
+    if (!nlForm || !queryForm || !queryInput) return;
+
+    nlForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData(nlForm);
+      try {
+        const resp = await fetch(nlForm.action, {
+          method: 'POST',
+          body: formData,
+        });
+        const sql = await resp.text();
+        if (!resp.ok) {
+          alert(sql);
+          return;
+        }
+        if (window.queryEditor) {
+          window.queryEditor.setValue(sql);
+        }
+        queryInput.value = sql;
+        const nlQueryInput = nlForm.querySelector('input[name="query"]');
+        if (nlQueryInput) {
+          nlQueryInput.value = sql;
+        }
+        if (typeof queryForm.requestSubmit === 'function') {
+          queryForm.requestSubmit();
+        } else {
+          queryForm.dispatchEvent(new Event('submit', { cancelable: true }));
+        }
+      } catch (err) {
+        console.error('NL query failed', err);
+        alert('Failed to process NL query. Please check your network connection or try again later.');
+      }
+    });
   });
 </script>
 {% endblock %}
