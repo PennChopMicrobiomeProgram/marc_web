@@ -26,7 +26,7 @@ from pathlib import Path
 from sqlalchemy import text
 from sqlalchemy import select
 from app.datatables import datatables_response, init_app, query_columns
-from app.nl_query import run_nl_query
+from app.nl_query import generate_sql, generate_sql_modification
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 
@@ -222,14 +222,24 @@ def api_query():
 @app.route("/api/nl_query", methods=["POST"])
 def api_nl_query():
     """Translate a natural language question into SQL and execute it."""
-    question = request.form.get("query")
+    question = request.form.get("prompt")
+    starting_query = request.form.get("query")
+
     if not question:
         return {"error": "No query provided"}, 400
-    try:
-        return run_nl_query(db.session, question), 200
-    except Exception as e:
-        print(f"Error executing NL query: {e}")
-        return {"error": "Query execution failed"}, 500
+
+    if not starting_query:
+        try:
+            return generate_sql(question), 200
+        except Exception as e:
+            print(f"Error creating NL query: {e}")
+            return {"error": "Query generation failed"}, 500
+    else:
+        try:
+            return generate_sql_modification(question, starting_query), 200
+        except Exception as e:
+            print(f"Error creating NL query with starting query: {e}")
+            return {"error": "Query modification failed"}, 500
 
 
 @app.route("/api", methods=["POST"])

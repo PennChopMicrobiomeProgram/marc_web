@@ -7,12 +7,15 @@ function initQueryEditor(containerId, hiddenInputId, tables) {
       keywords.push(f);
     }
   }
+  console.log("Keywords:", keywords);
+  console.log("Tables:", tables);
   const editor = CodeMirror(document.getElementById(containerId), {
     value: input.value || "",
     mode: "text/x-sql",
     lineNumbers: true,
     extraKeys: { "Ctrl-Space": "autocomplete" },
     hintOptions: { tables: tables, keywords: keywords },
+    lineWrapping: true,
   });
 
   editor.on("inputRead", function (cm, change) {
