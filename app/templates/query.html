@@ -155,7 +155,11 @@ $(document).ready(function () {
         if (nlQueryInput) {
           nlQueryInput.value = sql;
         }
-        queryForm.submit();
+        if (typeof queryForm.requestSubmit === 'function') {
+          queryForm.requestSubmit();
+        } else {
+          queryForm.dispatchEvent(new Event('submit', { cancelable: true }));
+        }
       } catch (err) {
         console.error('NL query failed', err);
       }
