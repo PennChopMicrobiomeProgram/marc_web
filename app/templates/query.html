@@ -13,12 +13,25 @@
 {% block body %}
 <div class="container py-2">
 <div class="d-flex flex-row">
-  <form class="d-flex flex-column w-100" method="POST" action="{{ url_for('query') }}">
-    <label class="p-2">Custom Query</label>
-    <input type="hidden" id="query-input" name="query" value="{{ query }}">
-    <div id="query-editor" class="w-100 border" style="height: 300px;"></div>
-    <button type="submit" id="submit" class="my-2 p-2">Submit</button>
-  </form>
+  <div class="d-flex flex-column">
+    <form class="d-flex flex-column w-100" method="POST" action="{{ url_for('query') }}">
+      <label class="p-2">Custom Query</label>
+      <input type="hidden" id="query-input" name="query" value="{{ query }}">
+      <div id="query-editor" class="w-100 border" style="height: 300px; max-width: 300;"></div>
+      <button type="submit" id="submit" class="my-2 p-2">Submit</button>
+    </form>
+
+    <form class="d-flex flex-column w-50 p-5 m-5" method="POST" action="{{ url_for('api_nl_query') }}">
+      <label for="prompt" class="form-label">
+        Natural Language Query
+        <i class="bi bi-question-circle" tabindex="0" data-bs-toggle="popover"
+          data-bs-content="Ask a question about the data. The system will generate an SQL query to answer it."></i>
+      </label>
+      <textarea id="prompt" name="prompt" class="form-control mb-3" rows="3">{{ prompt }}</textarea>
+      <input type="hidden" name="query" value="{{ query }}">
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+  </div>
 
   <div class="d-flex flex-column w-50 p-5 m-5">
     <label for="model-select" class="form-label">
