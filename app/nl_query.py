@@ -1,3 +1,4 @@
+from typing import Optional
 from typing_extensions import Annotated, TypedDict
 from langchain import hub
 from langgraph.graph import START, StateGraph
@@ -18,12 +19,29 @@ class QueryOutput(TypedDict):
 class State(TypedDict):
     question: str
     query: str
+    initial_query: Optional[str] = None
 
 
 # Build schema from SQLAlchemy models
 SCHEMA = "\n\n".join(
     str(CreateTable(table).compile(dialect=sqlite.dialect()))
     for table in Base.metadata.sorted_tables
+)
+GENERATE_QUERY_PROMPT = (
+    lambda input: f"""
+``` SYSTEM
+Given an input question, create a syntactically correct SQLite3 query to run to help find the answer. Unless the user specifies in his question a specific number of examples they wish to obtain, you can return all the results that match the question.
+
+Pay attention to use only the column names that you can see in the schema description. Be careful to not query for columns that do not exist. Also, pay attention to which column is in which table.
+
+Only use the following tables:
+{SCHEMA}
+```
+
+``` USER
+{input}
+```
+"""
 )
 
 llm = ChatOpenAI(
@@ -33,18 +51,10 @@ llm = ChatOpenAI(
     timeout=None,
     max_retries=2,
 )
-query_prompt_template = hub.pull("langchain-ai/sql-query-system-prompt")
 
 
 def write_query(state: State) -> State:
-    prompt = query_prompt_template.invoke(
-        {
-            "dialect": "sqlite",
-            "top_k": 10,
-            "table_info": SCHEMA,
-            "input": state["question"],
-        }
-    )
+    prompt = GENERATE_QUERY_PROMPT(state["question"])
     structured_llm = llm.with_structured_output(QueryOutput)
     result = structured_llm.invoke(prompt)
     return {"query": result["query"]}
