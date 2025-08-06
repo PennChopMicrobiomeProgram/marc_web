@@ -26,6 +26,7 @@ from pathlib import Path
 from sqlalchemy import text
 from sqlalchemy import select
 from app.datatables import datatables_response, init_app, query_columns
+from app.nl_query import run_nl_query
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 
@@ -215,6 +216,19 @@ def api_query():
         return datatables_response(query)
     except Exception as e:
         print(f"Error executing query: {e}")  # Log the full error server-side
+        return {"error": "Query execution failed"}, 500
+
+
+@app.route("/api/nl_query", methods=["POST"])
+def api_nl_query():
+    """Translate a natural language question into SQL and execute it."""
+    question = request.form.get("query")
+    if not question:
+        return {"error": "No query provided"}, 400
+    try:
+        return run_nl_query(db.session, question), 200
+    except Exception as e:
+        print(f"Error executing NL query: {e}")
         return {"error": "Query execution failed"}, 500
 
 
