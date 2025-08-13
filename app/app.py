@@ -79,12 +79,12 @@ def index():
     ).scalar()
     bacteremia_count = (
         db.session.query(func.count(Isolate.sample_id))
-        .filter(Isolate.source == "blood culture")
+        .filter(Isolate.special_collection == "Bacteremia")
         .scalar()
     )
     nares_count = (
         db.session.query(func.count(Isolate.sample_id))
-        .filter(Isolate.source == "nasal swab")
+        .filter(Isolate.special_collection == "Nare")
         .scalar()
     )
     return render_template(
