@@ -16,7 +16,7 @@ def client(monkeypatch):
             return {"query": "SELECT COUNT(*) AS count FROM isolates"}
 
     monkeypatch.setattr("langchain_openai.ChatOpenAI", DummyChatOpenAI)
-    
+
     from app.app import app
 
     with app.test_client() as client:
@@ -80,8 +80,7 @@ def test_query_api(client):
 
 
 def test_nl_query_api(client):
-    resp = client.post("/api/nl_query", data={"query": "How many isolates are there?"})
+    resp = client.post("/api/nl_query", data={"prompt": "How many isolates are there?"})
     assert resp.status_code == 200
-    data = resp.get_json()
-    assert data["sql"] == "SELECT COUNT(*) AS count FROM isolates"
-    assert data["result"][0]["count"] == 0
+    data = resp.data.decode("utf-8")
+    assert data == "SELECT COUNT(*) AS count FROM isolates"
