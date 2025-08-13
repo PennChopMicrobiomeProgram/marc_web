@@ -4,6 +4,19 @@ import pytest
 @pytest.fixture
 def client(monkeypatch):
     monkeypatch.setenv("MARC_DB_URL", "sqlite:///:memory:")
+
+    class DummyChatOpenAI:
+        def __init__(self, *args, **kwargs):
+            pass
+
+        def with_structured_output(self, _schema):
+            return self
+
+        def invoke(self, _prompt):
+            return {"query": "SELECT COUNT(*) AS count FROM isolates"}
+
+    monkeypatch.setattr("langchain_openai.ChatOpenAI", DummyChatOpenAI)
+    
     from app.app import app
 
     with app.test_client() as client:
