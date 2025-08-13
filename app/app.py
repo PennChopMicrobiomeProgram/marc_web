@@ -23,8 +23,7 @@ from marc_db.models import (
 )
 from marc_db.views import get_aliquots, get_isolates
 from pathlib import Path
-from sqlalchemy import text
-from sqlalchemy import select
+from sqlalchemy import select, text, func
 from app.datatables import datatables_response, init_app, query_columns
 from app.nl_query import generate_sql, generate_sql_modification
 from werkzeug.middleware.proxy_fix import ProxyFix
@@ -74,11 +73,29 @@ def favicon():
 
 @app.route("/")
 def index():
+    isolate_count = db.session.query(func.count(Isolate.sample_id)).scalar()
+    patient_count = db.session.query(
+        func.count(func.distinct(Isolate.subject_id))
+    ).scalar()
+    bacteremia_count = (
+        db.session.query(func.count(Isolate.sample_id))
+        .filter(Isolate.special_collection == "Bacteremia")
+        .scalar()
+    )
+    nares_count = (
+        db.session.query(func.count(Isolate.sample_id))
+        .filter(Isolate.special_collection == "Nare")
+        .scalar()
+    )
     return render_template(
         "index.html",
         version=__version__,
         marc_db_version=marc_db_version,
         last_sync=get_db_last_sync(),
+        isolate_count=isolate_count,
+        patient_count=patient_count,
+        bacteremia_count=bacteremia_count,
+        nares_count=nares_count,
     )
 
 
