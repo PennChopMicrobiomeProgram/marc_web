@@ -239,24 +239,23 @@ def api_query():
 @app.route("/api/nl_query", methods=["POST"])
 def api_nl_query():
     """Translate a natural language question into SQL and execute it."""
-    question = request.form.get("prompt")
-    starting_query = request.form.get("query")
+    question = request.form.get("query") or request.form.get("prompt")
+    starting_query = request.form.get("starting_query")
 
     if not question:
         return {"error": "No query provided"}, 400
 
-    if not starting_query:
-        try:
-            return generate_sql(question), 200
-        except Exception as e:
-            print(f"Error creating NL query: {e}")
-            return {"error": "Query generation failed"}, 500
-    else:
-        try:
-            return generate_sql_modification(question, starting_query), 200
-        except Exception as e:
-            print(f"Error creating NL query with starting query: {e}")
-            return {"error": "Query modification failed"}, 500
+    try:
+        if starting_query:
+            sql = generate_sql_modification(question, starting_query)
+        else:
+            sql = generate_sql(question)
+
+        result = db.session.execute(text(sql)).mappings().all()
+        return {"sql": sql, "result": [dict(row) for row in result]}, 200
+    except Exception as e:
+        print(f"Error creating NL query: {e}")
+        return {"error": "Query generation failed"}, 500
 
 
 @app.route("/api", methods=["POST"])
