@@ -14,6 +14,7 @@ function createServerDataTable(selector, ajaxUrl, columns) {
     processing: true,
     ajax: ajaxUrl,
     columns: columns,
+    order: [],
     pageLength: 20,
     lengthChange: false,
     pagingType: 'full_numbers',
