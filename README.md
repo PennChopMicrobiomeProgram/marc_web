@@ -18,10 +18,10 @@ source env/bin/activate
 pip install -r requirements.txt
 pip install -r dev-requirements.txt
 
-export MARC_DB_URL=sqlite:////path/to/marc_web/db.sqlite && export FLASK_DEBUG=1 && flask --app app/app run
+export MARC_DB_URL=sqlite:////path/to/marc_web/db.sqlite && export MARC_DB_LAST_SYNC=/path/to/last_sync && flask --app app/app run --debug
 ```
 
-You'll need to create `/path/to/marc_web/db.sqlite` using [marc_db](https://github.com/PennChopMicrobiomeProgram/marc_db).
+You'll need to create `/path/to/marc_web/db.sqlite` using [marc_db](https://github.com/PennChopMicrobiomeProgram/marc_db) and (optionally) `/path/to/last_sync` with a date/time stamp.
 
 ### Docker
 
