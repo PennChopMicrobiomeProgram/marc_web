@@ -24,6 +24,7 @@ from marc_db.models import (
 from marc_db.views import get_aliquots, get_isolates
 from pathlib import Path
 from sqlalchemy import select, text, func
+from sqlalchemy.pool import NullPool
 from app.datatables import datatables_response, init_app, query_columns
 from app.nl_query import generate_sql, generate_sql_modification
 from werkzeug.middleware.proxy_fix import ProxyFix
@@ -39,6 +40,10 @@ app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
 SQLALCHEMY_DATABASE_URI = os.environ["MARC_DB_URL"]
 app.config["SQLALCHEMY_DATABASE_URI"] = SQLALCHEMY_DATABASE_URI
 print(SQLALCHEMY_DATABASE_URI)
+app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+    "poolclass": NullPool,
+    "connect_args": {"check_same_thread": False},
+}
 db = SQLAlchemy(model_class=Base)
 db.init_app(app)
 
@@ -287,6 +292,15 @@ def health():
 def liveness():
     """Liveness check endpoint."""
     return {"status": "alive"}, 200
+
+
+@app.route("/reset_db_connections")
+def reset_db_connections():
+    try:
+        db.engine.dispose()
+        return {"status": "db_conns_reset"}, 200
+    except Exception as e:
+        return {"status": "db_conns_not_reset", "error": str(e)}, 500
 
 
 @app.route("/info")
