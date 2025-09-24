@@ -89,17 +89,19 @@ def index():
         "Bacteremia": "Bacteria suspected to cause bacteremia",
         "Surveillance": "Bacteria isolated from the nares of patients as part of surveillance",
     }
-    # First get all distinct special collection values
-    distinct_collections = db.session.query(Isolate.special_collection).distinct().all()
-    # Count occurrences of each value
-    for collection in distinct_collections:
-        if collection[0]:  # Only count non-null values
-            special_collections[collection[0]] = (
-                db.session.query(func.count(Isolate.sample_id))
-                .filter(Isolate.special_collection == collection[0])
-                .scalar(),
-                special_collection_descriptions.get(collection[0], ""),
-            )
+    # Get counts of all special collections in a single query
+    collection_counts = (
+        db.session.query(Isolate.special_collection, func.count(Isolate.sample_id))
+        .filter(Isolate.special_collection.is_not(None))
+        .group_by(Isolate.special_collection)
+        .all()
+    )
+
+    # Build the dictionary with counts and descriptions
+    special_collections = {
+        collection: (count, special_collection_descriptions.get(collection, ""))
+        for collection, count in collection_counts
+    }
 
     return render_template(
         "index.html",
