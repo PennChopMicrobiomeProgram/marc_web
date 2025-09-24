@@ -82,16 +82,27 @@ def index():
     patient_count = db.session.query(
         func.count(func.distinct(Isolate.subject_id))
     ).scalar()
-    bacteremia_count = (
-        db.session.query(func.count(Isolate.sample_id))
-        .filter(Isolate.special_collection == "Bacteremia")
-        .scalar()
+    # Get counts of each unique special collection
+    special_collections: dict[str, tuple[int, str]] = {}
+    # Define description strings for known special collections
+    special_collection_descriptions = {
+        "Bacteremia": "Bacteria suspected to cause bacteremia",
+        "Surveillance": "Bacteria isolated from the nares of patients as part of surveillance",
+    }
+    # Get counts of all special collections in a single query
+    collection_counts = (
+        db.session.query(Isolate.special_collection, func.count(Isolate.sample_id))
+        .filter(Isolate.special_collection.is_not(None))
+        .group_by(Isolate.special_collection)
+        .all()
     )
-    nares_count = (
-        db.session.query(func.count(Isolate.sample_id))
-        .filter(Isolate.special_collection == "Nare")
-        .scalar()
-    )
+
+    # Build the dictionary with counts and descriptions
+    special_collections = {
+        collection: (count, special_collection_descriptions.get(collection, ""))
+        for collection, count in collection_counts
+    }
+
     return render_template(
         "index.html",
         version=__version__,
@@ -99,8 +110,7 @@ def index():
         last_sync=get_db_last_sync(),
         isolate_count=isolate_count,
         patient_count=patient_count,
-        bacteremia_count=bacteremia_count,
-        nares_count=nares_count,
+        special_collection_counts=special_collections,
     )
 
 

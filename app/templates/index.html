@@ -11,11 +11,9 @@
   </p>
   <p>The efforts to curate the isolates include:</p>
   <ol>
-    <li>Bacteria suspected to cause bacteremia ({{ bacteremia_count }} isolates)</li>
-    <li>
-      Bacteria isolated from the nares of patients as part of surveillance
-      efforts ({{ nares_count }} isolates)
-    </li>
+    {% for collection, val in special_collection_counts.items() %}
+    <li>{{ collection }} ({{ val[0] }} isolates) {% if val[1] %} - {{ val[1] }} {% endif %}</li>
+    {% endfor %}
   </ol>
   <p>
     Searching through the database you will find information on the specimens
