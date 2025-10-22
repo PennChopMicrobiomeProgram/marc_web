@@ -2,24 +2,36 @@
 
 {% block body %}
 <div class="container py-5">
-  <h2 class="mb-3 text-center">Welcome to the microbial ARC isolate database!</h2>
+  <h2 class="mb-3 text-center">Welcome to the Microbial ARchive and Cryo-collection!</h2>
   <p>
-    This initiative within the umbrella of Center for Microbial Medicine aims to
-    sequence the genome of every clinically relevant isolate collected at
-    Children’s Hospital of Philadelphia. The database currently holds, {{ isolate_count }} isolates from
-    {{ patient_count }} patients.
+    The microbial ARchive and Cryo-collection (microbialARC) at the Children’s Hospital of Philadelphia is a
+    biorepository and research platform dedicated to preserving and studying both pathogenic and commensal microorganisms. We are building a meticulously curated strain library that advances the field of microbial genomics by integrating advanced cryo-preservation with genomic and phenotypic characterization.
   </p>
+  <p>
+    We collaborate closely with clinicians and basic researchers to collect, culture, and sequence microorganisms that shape human health and disease. Through the systematic preservation and genomic characterization of these isolates, microbialARC supports precision surveillance for infection prevention, outbreak response, and mechanistic studies of the microbiome.
+  </p>
+  <p>
+    Our mission is to transform microbial collections into a dynamic resource for discovery—bridging clinical microbiology, genomics, and bioinformatics to accelerate the development of innovative live biotherapeutics and next-generation tools for understanding microbial evolution and antibiotic resistance. By linking clinical, environmental, and genomic data, microbialARC empowers precision medicine and global health initiatives aimed at improving outcomes for children and communities worldwide.
+  </p>
+  <p>
+    The database currently holds, {{ isolate_count }} isolates from {{ patient_count }} patients.
+  </p>
+
+  <div class="row g-4 my-4">
+    <div class="col-md-6 text-center">
+      <img src="{{ url_for('static', filename='CHOP_Center_for_Microbial_Medicine.jpg') }}" class="img-fluid rounded shadow-sm" alt="Center for Microbial Medicine banner">
+    </div>
+    <div class="col-md-6 text-center">
+      <img src="{{ url_for('static', filename='CHOP_Microbiome_Center.jpg') }}" class="img-fluid rounded shadow-sm" alt="CHOP Microbiome Center banner">
+    </div>
+  </div>
+
   <p>The efforts to curate the isolates include:</p>
-  <ol>
+  <ul class="list-unstyled">
     {% for collection, val in special_collection_counts.items() %}
-    <li>{{ collection }} ({{ val[0] }} isolates) {% if val[1] %} - {{ val[1] }} {% endif %}</li>
+    <li class="mb-2"><strong>{{ collection }}</strong> ({{ val[0] }} isolates){% if val[1] %} - {{ val[1] }}{% endif %}</li>
     {% endfor %}
-  </ol>
-  <p>
-    Searching through the database you will find information on the specimens
-    the bacteria were isolated from, clinical information on subjects, assembled
-    genomes and their annotations.
-  </p>
+  </ul>
 </div>
 
 <div>
