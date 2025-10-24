@@ -21,7 +21,13 @@ from marc_db.models import (
     Base,
     Isolate,
 )
-from marc_db.views import get_aliquots, get_isolates
+from marc_db.views import (
+    get_aliquots,
+    get_assemblies,
+    get_assembly_qc,
+    get_isolates,
+    get_taxonomic_assignments,
+)
 from pathlib import Path
 from sqlalchemy import select, text, func
 from sqlalchemy.pool import NullPool
@@ -127,7 +133,7 @@ def api_isolates():
 @app.route("/isolate/<isolate_id>")
 def show_isolate(isolate_id):
     isolate = get_isolates(db.session, isolate_id)
-    if not isolate:
+    if not isolate or isolate[0] is None:
         return render_template("dne.html", isolate_id=isolate_id)
     return render_template("show_isolate.html", isolate=isolate[0])
 
@@ -145,7 +151,7 @@ def api_aliquots():
 @app.route("/aliquot/<aliquot_id>")
 def show_aliquot(aliquot_id):
     aliquot = get_aliquots(db.session, aliquot_id)
-    if not aliquot:
+    if not aliquot or aliquot[0] is None:
         return render_template("dne.html", aliquot_id=aliquot_id)
     return render_template("show_aliquot.html", aliquot=aliquot[0])
 
@@ -170,6 +176,24 @@ def api_assembly_qc():
     return datatables_response(select(AssemblyQC))
 
 
+@app.route("/assembly_qc/<int:assembly_id>")
+def show_assembly_qc(assembly_id: int):
+    qc_records = get_assembly_qc(db.session, assembly_id=assembly_id)
+    if not qc_records or qc_records[0] is None:
+        return render_template(
+            "dne.html",
+            message=f"No assembly QC record found for assembly {assembly_id}.",
+        )
+    qc_record = qc_records[0]
+    qc, isolate_id = qc_record
+    return render_template(
+        "show_assembly_qc.html",
+        assembly_qc=qc,
+        assembly_id=assembly_id,
+        isolate_id=isolate_id,
+    )
+
+
 @app.route("/taxonomic_assignments")
 def browse_taxonomic_assignments():
     return render_template("browse_taxonomic_assignments.html")
@@ -180,6 +204,23 @@ def api_taxonomic_assignments():
     return datatables_response(select(TaxonomicAssignment))
 
 
+@app.route("/taxonomic_assignments/<int:assembly_id>")
+def show_taxonomic_assignment(assembly_id: int):
+    assignments = get_taxonomic_assignments(db.session, assembly_id=assembly_id)
+    if not assignments or assignments[0] is None:
+        return render_template(
+            "dne.html",
+            message=f"No taxonomic assignment found for assembly {assembly_id}.",
+        )
+    assignment, isolate_id = assignments[0]
+    return render_template(
+        "show_taxonomic_assignment.html",
+        assignment=assignment,
+        assembly_id=assembly_id,
+        isolate_id=isolate_id,
+    )
+
+
 @app.route("/antimicrobials")
 def browse_antimicrobials():
     return render_template("browse_antimicrobials.html")
@@ -188,6 +229,44 @@ def browse_antimicrobials():
 @app.route("/api/antimicrobials")
 def api_antimicrobials():
     return datatables_response(select(Antimicrobial))
+
+
+@app.route("/antimicrobial/<int:antimicrobial_id>")
+def show_antimicrobial(antimicrobial_id: int):
+    antimicrobial_record = (
+        db.session.query(Antimicrobial, Assembly.isolate_id)
+        .join(Assembly)
+        .filter(Antimicrobial.id == antimicrobial_id)
+        .first()
+    )
+    if not antimicrobial_record:
+        return render_template("dne.html", antimicrobial_id=antimicrobial_id)
+    antimicrobial_obj, isolate_id = antimicrobial_record
+    return render_template(
+        "show_antimicrobial.html",
+        antimicrobial=antimicrobial_obj,
+        isolate_id=isolate_id,
+    )
+
+
+@app.route("/assembly/<int:assembly_id>")
+def show_assembly(assembly_id: int):
+    assemblies = get_assemblies(db.session, id=assembly_id)
+    if not assemblies or assemblies[0] is None:
+        return render_template("dne.html", assembly_id=assembly_id)
+    assembly = assemblies[0]
+    qc = assembly.assembly_qcs
+    assignment = (
+        assembly.taxonomic_assignments[0] if assembly.taxonomic_assignments else None
+    )
+    antimicrobials = list(assembly.antimicrobials) if assembly.antimicrobials else []
+    return render_template(
+        "show_assembly.html",
+        assembly=assembly,
+        qc=qc,
+        assignment=assignment,
+        antimicrobials=antimicrobials,
+    )
 
 
 @app.route("/query", methods=["GET", "POST"])

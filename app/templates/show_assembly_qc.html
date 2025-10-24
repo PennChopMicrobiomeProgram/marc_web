@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block body %}
+<div class="container py-4">
+  <a class="btn btn-link ps-0" href="{{ url_for('browse_assembly_qc') }}">
+    <i class="bi bi-arrow-left"></i> Back to assembly QC
+  </a>
+
+  <div class="card shadow-sm">
+    <div class="card-header bg-primary text-white">
+      <h2 class="h4 mb-0">Assembly QC for Assembly {{ assembly_id }}</h2>
+    </div>
+    <div class="card-body">
+      <p class="mb-3">
+        Related assembly:
+        <a href="{{ url_for('show_assembly', assembly_id=assembly_id) }}">{{ assembly_id }}</a>
+        | Isolate:
+        <a href="{{ url_for('show_isolate', isolate_id=isolate_id) }}">{{ isolate_id }}</a>
+      </p>
+      <dl class="row mb-0">
+        <dt class="col-sm-4">Contig Count</dt>
+        <dd class="col-sm-8">{{ assembly_qc.contig_count or '—' }}</dd>
+
+        <dt class="col-sm-4">Genome Size</dt>
+        <dd class="col-sm-8">{{ assembly_qc.genome_size or '—' }}</dd>
+
+        <dt class="col-sm-4">N50</dt>
+        <dd class="col-sm-8">{{ assembly_qc.n50 or '—' }}</dd>
+
+        <dt class="col-sm-4">GC Content</dt>
+        <dd class="col-sm-8">{{ assembly_qc.gc_content or '—' }}</dd>
+
+        <dt class="col-sm-4">CDS</dt>
+        <dd class="col-sm-8">{{ assembly_qc.cds or '—' }}</dd>
+
+        <dt class="col-sm-4">Completeness</dt>
+        <dd class="col-sm-8">{{ assembly_qc.completeness or '—' }}</dd>
+
+        <dt class="col-sm-4">Contamination</dt>
+        <dd class="col-sm-8">{{ assembly_qc.contamination or '—' }}</dd>
+
+        <dt class="col-sm-4">Min Contig Coverage</dt>
+        <dd class="col-sm-8">{{ assembly_qc.min_contig_coverage or '—' }}</dd>
+
+        <dt class="col-sm-4">Average Contig Coverage</dt>
+        <dd class="col-sm-8">{{ assembly_qc.avg_contig_coverage or '—' }}</dd>
+
+        <dt class="col-sm-4">Max Contig Coverage</dt>
+        <dd class="col-sm-8">{{ assembly_qc.max_contig_coverage or '—' }}</dd>
+      </dl>
+    </div>
+  </div>
+</div>
+{% endblock %}

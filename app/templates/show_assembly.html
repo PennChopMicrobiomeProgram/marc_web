@@ -1,0 +1,170 @@
+{% extends 'base.html' %}
+
+{% block body %}
+<div class="container py-4">
+  <a class="btn btn-link ps-0" href="{{ url_for('browse_assemblies') }}">
+    <i class="bi bi-arrow-left"></i> Back to assemblies
+  </a>
+
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-primary text-white">
+      <h2 class="h4 mb-0">Assembly {{ assembly.id }}</h2>
+    </div>
+    <div class="card-body">
+      <dl class="row mb-0">
+        <dt class="col-sm-4">Assembly ID</dt>
+        <dd class="col-sm-8">{{ assembly.id }}</dd>
+
+        <dt class="col-sm-4">Isolate</dt>
+        <dd class="col-sm-8">
+          <a href="{{ url_for('show_isolate', isolate_id=assembly.isolate_id) }}">
+            {{ assembly.isolate_id }}
+          </a>
+        </dd>
+
+        <dt class="col-sm-4">Metagenomic Sample ID</dt>
+        <dd class="col-sm-8">{{ assembly.metagenomic_sample_id or '—' }}</dd>
+
+        <dt class="col-sm-4">Metagenomic Run ID</dt>
+        <dd class="col-sm-8">{{ assembly.metagenomic_run_id or '—' }}</dd>
+
+        <dt class="col-sm-4">Run Number</dt>
+        <dd class="col-sm-8">{{ assembly.run_number or '—' }}</dd>
+
+        <dt class="col-sm-4">Sunbeam Version</dt>
+        <dd class="col-sm-8">{{ assembly.sunbeam_version or '—' }}</dd>
+
+        <dt class="col-sm-4">SBX SGA Version</dt>
+        <dd class="col-sm-8">{{ assembly.sbx_sga_version or '—' }}</dd>
+
+        <dt class="col-sm-4">Config File</dt>
+        <dd class="col-sm-8">{{ assembly.config_file or '—' }}</dd>
+
+        <dt class="col-sm-4">Sunbeam Output Path</dt>
+        <dd class="col-sm-8">{{ assembly.sunbeam_output_path or '—' }}</dd>
+      </dl>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-6">
+      <div class="card h-100 shadow-sm">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h3 class="h5 mb-0">Assembly QC</h3>
+          {% if qc %}
+          <a class="btn btn-sm btn-outline-primary" href="{{ url_for('show_assembly_qc', assembly_id=assembly.id) }}">
+            View QC Details
+          </a>
+          {% endif %}
+        </div>
+        <div class="card-body">
+          {% if qc %}
+          <dl class="row mb-0">
+            <dt class="col-sm-5">Contig Count</dt>
+            <dd class="col-sm-7">{{ qc.contig_count or '—' }}</dd>
+
+            <dt class="col-sm-5">Genome Size</dt>
+            <dd class="col-sm-7">{{ qc.genome_size or '—' }}</dd>
+
+            <dt class="col-sm-5">N50</dt>
+            <dd class="col-sm-7">{{ qc.n50 or '—' }}</dd>
+
+            <dt class="col-sm-5">GC Content</dt>
+            <dd class="col-sm-7">{{ qc.gc_content or '—' }}</dd>
+
+            <dt class="col-sm-5">CDS</dt>
+            <dd class="col-sm-7">{{ qc.cds or '—' }}</dd>
+
+            <dt class="col-sm-5">Completeness</dt>
+            <dd class="col-sm-7">{{ qc.completeness or '—' }}</dd>
+
+            <dt class="col-sm-5">Contamination</dt>
+            <dd class="col-sm-7">{{ qc.contamination or '—' }}</dd>
+          </dl>
+          {% else %}
+          <p class="text-muted mb-0">No QC metrics recorded for this assembly.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="card h-100 shadow-sm">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h3 class="h5 mb-0">Taxonomic Assignment</h3>
+          {% if assignment %}
+          <a class="btn btn-sm btn-outline-primary" href="{{ url_for('show_taxonomic_assignment', assembly_id=assembly.id) }}">
+            View Assignment
+          </a>
+          {% endif %}
+        </div>
+        <div class="card-body">
+          {% if assignment %}
+          <dl class="row mb-0">
+            <dt class="col-sm-5">Classification</dt>
+            <dd class="col-sm-7">{{ assignment.taxonomic_classification or '—' }}</dd>
+
+            <dt class="col-sm-5">Abundance</dt>
+            <dd class="col-sm-7">{{ assignment.taxonomic_abundance or '—' }}</dd>
+
+            <dt class="col-sm-5">ST</dt>
+            <dd class="col-sm-7">{{ assignment.st or '—' }}</dd>
+
+            <dt class="col-sm-5">ST Schema</dt>
+            <dd class="col-sm-7">{{ assignment.st_schema or '—' }}</dd>
+
+            <dt class="col-sm-5">Allele Assignment</dt>
+            <dd class="col-sm-7">{{ assignment.allele_assignment or '—' }}</dd>
+          </dl>
+          {% else %}
+          <p class="text-muted mb-0">No taxonomic assignment has been recorded.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card shadow-sm mt-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h3 class="h5 mb-0">Antimicrobials</h3>
+      {% if antimicrobials %}
+      <span class="badge bg-primary">{{ antimicrobials|length }}</span>
+      {% endif %}
+    </div>
+    <div class="card-body">
+      {% if antimicrobials %}
+      <div class="table-responsive">
+        <table class="table table-striped mb-0">
+          <thead>
+            <tr>
+              <th scope="col">ID</th>
+              <th scope="col">Contig ID</th>
+              <th scope="col">Gene Symbol</th>
+              <th scope="col">Gene Name</th>
+              <th scope="col">Accession</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for antimicrobial in antimicrobials %}
+            <tr>
+              <td>
+                <a href="{{ url_for('show_antimicrobial', antimicrobial_id=antimicrobial.id) }}">
+                  {{ antimicrobial.id }}
+                </a>
+              </td>
+              <td>{{ antimicrobial.contig_id or '—' }}</td>
+              <td>{{ antimicrobial.gene_symbol or '—' }}</td>
+              <td>{{ antimicrobial.gene_name or '—' }}</td>
+              <td>{{ antimicrobial.accession or '—' }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <p class="text-muted mb-0">No antimicrobial markers recorded for this assembly.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -31,8 +31,9 @@
 
 <script type="text/javascript">
 $(document).ready(function () {
+    const qcUrl = "{{ url_for('show_assembly_qc', assembly_id=0)[:-1] }}";
     const oTable = createServerDataTable('#assembly_qc', '{{ url_for('api_assembly_qc') }}', [
-        { data: 'assembly_id' },
+        { data: 'assembly_id', render: function(d) { return '<a href="' + qcUrl + d + '">' + d + '</a>'; } },
         { data: 'isolate_id' },
         { data: 'contig_count' },
         { data: 'genome_size' },
