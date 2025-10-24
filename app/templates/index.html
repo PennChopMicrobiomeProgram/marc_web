@@ -8,13 +8,16 @@
     align-items: center;
     gap: 1.5rem;
     flex-wrap: nowrap;
+    width: 100%;
   }
 
   .chop-banner {
-    flex: 1 1 0;
-    height: clamp(120px, 20vw, 220px);
-    width: auto;
-    max-width: 100%;
+    flex: 1 1 calc(50% - 0.75rem);
+    max-width: calc(50% - 0.75rem);
+    width: 100%;
+    height: auto;
+    max-height: clamp(120px, 20vw, 220px);
+    object-fit: contain;
     border-radius: 0.5rem;
     box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
   }
