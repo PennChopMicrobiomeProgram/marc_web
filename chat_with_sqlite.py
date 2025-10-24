@@ -9,12 +9,11 @@
 
 
 from IPython.display import Image, display
-from langchain import hub
 from langchain.chat_models import init_chat_model
 from langchain_community.agent_toolkits import SQLDatabaseToolkit
 from langchain_community.tools.sql_database.tool import QuerySQLDatabaseTool
 from langchain_community.utilities import SQLDatabase
-from langchain_core.messages import HumanMessage
+from langchain_core.prompts import ChatPromptTemplate
 from langchain_experimental.sql import SQLDatabaseChain
 from langchain_ollama.llms import OllamaLLM
 from langgraph.graph import START, StateGraph
@@ -41,10 +40,26 @@ llm = init_chat_model("mistral-small", model_provider="ollama")
 toolkit = SQLDatabaseToolkit(db=db, llm=llm)
 tools = toolkit.get_tools()
 
-query_prompt_template = hub.pull("langchain-ai/sql-query-system-prompt")
-# query_prompt_template = hub.pull("langchain-ai/sql-agent-system-prompt")
-assert len(query_prompt_template.messages) == 1
-# query_prompt_template.messages[0].pretty_print()
+QUERY_SYSTEM_PROMPT = """
+You are an expert SQL query builder for {dialect} databases.
+
+Use the following database schema:
+{table_info}
+
+Return a syntactically valid SQL statement that answers the user's question.
+Unless the user specifies a row limit, default to returning up to {top_k} results.
+If an existing query is provided, treat it as a starting point and refine it if appropriate.
+
+Existing query draft (may be empty):
+{existing_query}
+"""
+
+query_prompt_template = ChatPromptTemplate.from_messages(
+    [
+        ("system", QUERY_SYSTEM_PROMPT),
+        ("human", "{input}"),
+    ]
+)
 
 
 def write_query(state: State) -> State:
@@ -54,6 +69,7 @@ def write_query(state: State) -> State:
             "dialect": "sqlite",
             "top_k": 10,
             "table_info": db.get_table_info(),
+            "existing_query": state.get("query", ""),
             "input": state["question"],
         }
     )
