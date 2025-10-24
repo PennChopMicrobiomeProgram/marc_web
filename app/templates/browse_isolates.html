@@ -11,31 +11,55 @@
       <thead>
         <tr>
           <th>Sample ID</th>
-          <th>Received Date</th>
-          <th>Cryobanking Date</th>
+          <th>Collection</th>
+          <th>Collection Year</th>
           <th>Subject ID</th>
           <th>Specimen ID</th>
           <th>Suspected Organism</th>
-          <th>Special Collection</th>
         </tr>
       </thead>
       <tbody></tbody>
     </table>
   </div>
 </div>
-  
+
   <script type="text/javascript">
   $(document).ready(function () {
       /* Initialize the DataTable with server-side processing */
       const isolateUrl = "{{ url_for('show_isolate', isolate_id='') }}";
+      const renderCollectionYear = (value, type) => {
+          if (!value) {
+              return type === 'sort' || type === 'type' ? null : '';
+          }
+
+          let year = '';
+          const parsedDate = new Date(value);
+          if (parsedDate.toString() !== 'Invalid Date') {
+              year = parsedDate.getUTCFullYear().toString();
+          } else {
+              const match = /^(\d{4})/.exec(value);
+              if (match) {
+                  year = match[1];
+              }
+          }
+
+          if (!year) {
+              return type === 'sort' || type === 'type' ? null : '';
+          }
+
+          if (type === 'sort' || type === 'type') {
+              return parseInt(year, 10);
+          }
+
+          return year;
+      };
       const oTable = createServerDataTable('#isolates', '{{ url_for('api_isolates') }}', [
           { data: 'sample_id', render: function(d, type, row) { return '<a href="' + isolateUrl + d + '">' + d + '</a>'; } },
-          { data: 'received_date' },
-          { data: 'cryobanking_date' },
+          { data: 'special_collection' },
+          { data: 'received_date', render: function(value, type) { return renderCollectionYear(value, type); } },
           { data: 'subject_id' },
           { data: 'specimen_id' },
-          { data: 'suspected_organism' },
-          { data: 'special_collection' }
+          { data: 'suspected_organism' }
       ]);
   
       /* Move search box to bottom of summary area */
