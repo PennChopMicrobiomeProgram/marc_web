@@ -34,7 +34,7 @@
 
           let year = '';
           const parsedDate = new Date(value);
-          if (!Number.isNaN(parsedDate.getTime())) {
+          if (parsedDate.toString() !== 'Invalid Date') {
               year = parsedDate.getUTCFullYear().toString();
           } else {
               const match = /^(\d{4})/.exec(value);
