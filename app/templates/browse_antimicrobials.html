@@ -10,6 +10,7 @@
     <table class="display" id="antimicrobials">
       <thead>
         <tr>
+          <th>ID</th>
           <th>Assembly ID</th>
           <th>Isolate ID</th>
           <th>Contig ID</th>
@@ -27,7 +28,9 @@
 
 <script type="text/javascript">
 $(document).ready(function () {
+    const antimicrobialUrl = "{{ url_for('show_antimicrobial', antimicrobial_id=0)[:-1] }}";
     const oTable = createServerDataTable('#antimicrobials', '{{ url_for('api_antimicrobials') }}', [
+        { data: 'id', render: function(d) { return '<a href="' + antimicrobialUrl + d + '">' + d + '</a>'; } },
         { data: 'assembly_id' },
         { data: 'isolate_id' },
         { data: 'contig_id' },

@@ -10,6 +10,10 @@
     <p class="m-3">{{ aliquot_id }} is not a valid aliquot id.</p>
     {% elif isolate_id is defined %}
     <p class="m-3">{{ isolate_id }} is not a valid isolate id.</p>
+    {% elif assembly_id is defined %}
+    <p class="m-3">{{ assembly_id }} is not a valid assembly id.</p>
+    {% elif antimicrobial_id is defined %}
+    <p class="m-3">{{ antimicrobial_id }} is not a valid antimicrobial id.</p>
     {% elif message is defined %}
     <p class="m-3">{{ message }}</p>
     {% else %}

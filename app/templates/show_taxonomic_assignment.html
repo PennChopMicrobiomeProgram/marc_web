@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block body %}
+<div class="container py-4">
+  <a class="btn btn-link ps-0" href="{{ url_for('browse_taxonomic_assignments') }}">
+    <i class="bi bi-arrow-left"></i> Back to taxonomic assignments
+  </a>
+
+  <div class="card shadow-sm">
+    <div class="card-header bg-primary text-white">
+      <h2 class="h4 mb-0">Taxonomic Assignment for Assembly {{ assembly_id }}</h2>
+    </div>
+    <div class="card-body">
+      <p class="mb-3">
+        Related assembly:
+        <a href="{{ url_for('show_assembly', assembly_id=assembly_id) }}">{{ assembly_id }}</a>
+        | Isolate:
+        <a href="{{ url_for('show_isolate', isolate_id=isolate_id) }}">{{ isolate_id }}</a>
+      </p>
+      <dl class="row mb-0">
+        <dt class="col-sm-4">Taxonomic Classification</dt>
+        <dd class="col-sm-8">{{ assignment.taxonomic_classification or '—' }}</dd>
+
+        <dt class="col-sm-4">Taxonomic Abundance</dt>
+        <dd class="col-sm-8">{{ assignment.taxonomic_abundance or '—' }}</dd>
+
+        <dt class="col-sm-4">Mash Contamination</dt>
+        <dd class="col-sm-8">{{ assignment.mash_contamination or '—' }}</dd>
+
+        <dt class="col-sm-4">Mash Contaminated Species</dt>
+        <dd class="col-sm-8">{{ assignment.mash_contaminated_spp or '—' }}</dd>
+
+        <dt class="col-sm-4">Sequence Type (ST)</dt>
+        <dd class="col-sm-8">{{ assignment.st or '—' }}</dd>
+
+        <dt class="col-sm-4">ST Schema</dt>
+        <dd class="col-sm-8">{{ assignment.st_schema or '—' }}</dd>
+
+        <dt class="col-sm-4">Allele Assignment</dt>
+        <dd class="col-sm-8">{{ assignment.allele_assignment or '—' }}</dd>
+      </dl>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block body %}
+<div class="container py-4">
+  <a class="btn btn-link ps-0" href="{{ url_for('browse_isolates') }}">
+    <i class="bi bi-arrow-left"></i> Back to isolates
+  </a>
+  <div class="card shadow-sm">
+    <div class="card-header bg-primary text-white">
+      <h2 class="h4 mb-0">Isolate {{ isolate.sample_id }}</h2>
+    </div>
+    <div class="card-body">
+      <dl class="row mb-0">
+        <dt class="col-sm-4">Sample ID</dt>
+        <dd class="col-sm-8">{{ isolate.sample_id }}</dd>
+
+        <dt class="col-sm-4">Subject ID</dt>
+        <dd class="col-sm-8">{{ isolate.subject_id }}</dd>
+
+        <dt class="col-sm-4">Specimen ID</dt>
+        <dd class="col-sm-8">{{ isolate.specimen_id }}</dd>
+
+        <dt class="col-sm-4">Suspected Organism</dt>
+        <dd class="col-sm-8">{{ isolate.suspected_organism or '—' }}</dd>
+
+        <dt class="col-sm-4">Special Collection</dt>
+        <dd class="col-sm-8">{{ isolate.special_collection or '—' }}</dd>
+
+        <dt class="col-sm-4">Received Date</dt>
+        <dd class="col-sm-8">{{ isolate.received_date or '—' }}</dd>
+
+        <dt class="col-sm-4">Cryobanking Date</dt>
+        <dd class="col-sm-8">{{ isolate.cryobanking_date or '—' }}</dd>
+      </dl>
+    </div>
+  </div>
+</div>
+{% endblock %}

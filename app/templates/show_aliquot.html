@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block body %}
+<div class="container py-4">
+  <a class="btn btn-link ps-0" href="{{ url_for('browse_aliquots') }}">
+    <i class="bi bi-arrow-left"></i> Back to aliquots
+  </a>
+  <div class="card shadow-sm">
+    <div class="card-header bg-primary text-white">
+      <h2 class="h4 mb-0">Aliquot {{ aliquot.id }}</h2>
+    </div>
+    <div class="card-body">
+      <dl class="row mb-0">
+        <dt class="col-sm-4">Aliquot ID</dt>
+        <dd class="col-sm-8">{{ aliquot.id }}</dd>
+
+        <dt class="col-sm-4">Isolate</dt>
+        <dd class="col-sm-8">
+          <a href="{{ url_for('show_isolate', isolate_id=aliquot.isolate_id) }}">
+            {{ aliquot.isolate_id }}
+          </a>
+        </dd>
+
+        <dt class="col-sm-4">Tube Barcode</dt>
+        <dd class="col-sm-8">{{ aliquot.tube_barcode or '—' }}</dd>
+
+        <dt class="col-sm-4">Box Name</dt>
+        <dd class="col-sm-8">{{ aliquot.box_name or '—' }}</dd>
+      </dl>
+    </div>
+  </div>
+</div>
+{% endblock %}

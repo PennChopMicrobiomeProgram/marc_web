@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block body %}
+<div class="container py-4">
+  <a class="btn btn-link ps-0" href="{{ url_for('browse_antimicrobials') }}">
+    <i class="bi bi-arrow-left"></i> Back to antimicrobials
+  </a>
+
+  <div class="card shadow-sm">
+    <div class="card-header bg-primary text-white">
+      <h2 class="h4 mb-0">Antimicrobial Marker {{ antimicrobial.id }}</h2>
+    </div>
+    <div class="card-body">
+      <p class="mb-3">
+        Assembly:
+        <a href="{{ url_for('show_assembly', assembly_id=antimicrobial.assembly_id) }}">{{ antimicrobial.assembly_id }}</a>
+        | Isolate:
+        <a href="{{ url_for('show_isolate', isolate_id=isolate_id) }}">{{ isolate_id }}</a>
+      </p>
+      <dl class="row mb-0">
+        <dt class="col-sm-4">Contig ID</dt>
+        <dd class="col-sm-8">{{ antimicrobial.contig_id or '—' }}</dd>
+
+        <dt class="col-sm-4">Gene Symbol</dt>
+        <dd class="col-sm-8">{{ antimicrobial.gene_symbol or '—' }}</dd>
+
+        <dt class="col-sm-4">Gene Name</dt>
+        <dd class="col-sm-8">{{ antimicrobial.gene_name or '—' }}</dd>
+
+        <dt class="col-sm-4">Accession</dt>
+        <dd class="col-sm-8">{{ antimicrobial.accession or '—' }}</dd>
+
+        <dt class="col-sm-4">Element Type</dt>
+        <dd class="col-sm-8">{{ antimicrobial.element_type or '—' }}</dd>
+
+        <dt class="col-sm-4">Resistance Product</dt>
+        <dd class="col-sm-8">{{ antimicrobial.resistance_product or '—' }}</dd>
+      </dl>
+    </div>
+  </div>
+</div>
+{% endblock %}
