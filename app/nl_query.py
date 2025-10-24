@@ -1,8 +1,12 @@
+"""Utilities for generating SQL from natural language prompts."""
+
 from typing import Optional
+
 from typing_extensions import Annotated, TypedDict
-from langchain import hub
-from langgraph.graph import START, StateGraph
+
+from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
+from langgraph.graph import START, StateGraph
 from sqlalchemy.dialects import sqlite
 from sqlalchemy.schema import CreateTable
 
@@ -27,12 +31,36 @@ SCHEMA = "\n\n".join(
     str(CreateTable(table).compile(dialect=sqlite.dialect()))
     for table in Base.metadata.sorted_tables
 )
+
+QUERY_SYSTEM_PROMPT = """
+You are an expert SQL query builder for {dialect} databases.
+
+Use the following database schema:
+{table_info}
+
+Return a syntactically valid SQL statement that answers the user's question.
+Unless the user specifies a row limit, default to returning up to {top_k} results.
+If an existing query is provided, treat it as a starting point and refine it if appropriate.
+
+Existing query draft (may be empty):
+{existing_query}
+"""
+
+query_prompt_template = ChatPromptTemplate.from_messages(
+    [
+        ("system", QUERY_SYSTEM_PROMPT),
+        ("human", "{input}"),
+    ]
+)
+
 GENERATE_QUERY_PROMPT = (
     lambda input: f"""
 ``` SYSTEM
-Given an input question, create a syntactically correct SQLite3 query to run to help find the answer. Unless the user specifies in his question a specific number of examples they wish to obtain, you can return all the results that match the question.
+Given an input question, create a syntactically correct SQLite3 query to run to help find the answer. Unless the user specifies
+in his question a specific number of examples they wish to obtain, you can return all the results that match the question.
 
-Pay attention to use only the column names that you can see in the schema description. Be careful to not query for columns that do not exist. Also, pay attention to which column is in which table.
+Pay attention to use only the column names that you can see in the schema description. Be careful to not query for columns that
+do not exist. Also, pay attention to which column is in which table.
 
 Only use the following tables:
 {SCHEMA}
@@ -66,8 +94,8 @@ def modify_query(state: State) -> State:
             "dialect": "sqlite",
             "top_k": 10,
             "table_info": SCHEMA,
+            "existing_query": state["query"],
             "input": state["question"],
-            "query": state["query"],
         }
     )
     structured_llm = llm.with_structured_output(QueryOutput)
@@ -86,7 +114,7 @@ def generate_sql(question: str) -> str:
 
 def generate_sql_modification(question: str, starting_query: str) -> str:
     graph_builder = StateGraph(State)
-    graph_builder.add_node("modify_query", write_query)
+    graph_builder.add_node("modify_query", modify_query)
     graph_builder.add_edge(START, "modify_query")
     graph = graph_builder.compile()
     result = graph.invoke({"question": question, "query": starting_query})
