@@ -12,11 +12,10 @@
   }
 
   .chop-banner {
-    flex: 1 1 calc(50% - 0.75rem);
-    max-width: calc(50% - 0.75rem);
-    width: 100%;
-    height: auto;
-    max-height: clamp(120px, 20vw, 220px);
+    flex: 0 1 clamp(220px, 40vw, 420px);
+    width: auto;
+    max-width: min(100%, 40vw);
+    height: clamp(120px, 18vw, 220px);
     object-fit: contain;
     border-radius: 0.5rem;
     box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
