@@ -29,13 +29,14 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: "Rubrik", "Rubik", "Helvetica Neue", Arial, sans-serif;
+  font-family: "Rubrik", "Rubrik", "Helvetica Neue", Arial, sans-serif;
   font-weight: 600;
 }
 
 h1 {
   font-size: 40px;
   color: var(--chop-teal-dark);
+  text-transform: uppercase;
 }
 
 h2 {
@@ -75,7 +76,7 @@ a:focus {
 .navbar-brand,
 .navbar .nav-link {
   color: var(--chop-navy) !important;
-  font-family: "Rubrik", "Rubik", "Helvetica Neue", Arial, sans-serif;
+  font-family: "Rubrik", "Rubrik", "Helvetica Neue", Arial, sans-serif;
   font-weight: 600;
 }
 
