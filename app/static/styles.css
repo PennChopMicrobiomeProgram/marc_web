@@ -1,0 +1,124 @@
+:root {
+  --chop-teal-dark: #26778b;
+  --chop-navy: #005587;
+  --chop-teal: #33a0bb;
+  --chop-ice: #eaf6f9;
+  --chop-taupe: #9a8b7d;
+  --chop-brown: #786452;
+  --chop-stone: #e4e0dc;
+  --chop-ivory: #f2efec;
+  --chop-olive: #799a3e;
+  --chop-sage: #e2e7cf;
+  --chop-rose: #d01c65;
+  --chop-blush: #fde8f2;
+}
+
+body {
+  font-family: "Chronicle", Georgia, "Times New Roman", serif;
+  font-size: 16px;
+  line-height: 1.4;
+  color: var(--chop-brown);
+  background-color: var(--chop-ivory);
+  padding-top: 70px;
+  min-height: 100vh;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "Rubrik", "Rubik", "Helvetica Neue", Arial, sans-serif;
+  font-weight: 600;
+}
+
+h1 {
+  font-size: 40px;
+  color: var(--chop-teal-dark);
+}
+
+h2 {
+  font-size: 30px;
+  color: var(--chop-brown);
+}
+
+h3 {
+  font-size: 20px;
+  color: var(--chop-teal);
+}
+
+h4 {
+  font-size: 24px;
+  color: var(--chop-navy);
+}
+
+p {
+  margin-bottom: 1rem;
+}
+
+a {
+  color: var(--chop-teal);
+  text-decoration: underline;
+}
+
+a:hover,
+a:focus {
+  color: var(--chop-olive);
+}
+
+.navbar {
+  background-color: var(--chop-ice) !important;
+  border-bottom: 4px solid var(--chop-teal-dark);
+}
+
+.navbar-brand,
+.navbar .nav-link {
+  color: var(--chop-navy) !important;
+  font-family: "Rubrik", "Rubik", "Helvetica Neue", Arial, sans-serif;
+  font-weight: 600;
+}
+
+.navbar .nav-link:hover,
+.navbar .nav-link:focus,
+.navbar .nav-link.active {
+  color: var(--chop-teal) !important;
+}
+
+.btn-primary,
+.btn-info {
+  background-color: var(--chop-teal);
+  border-color: var(--chop-teal);
+  color: #ffffff;
+}
+
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-info:hover,
+.btn-info:focus {
+  background-color: var(--chop-navy);
+  border-color: var(--chop-navy);
+}
+
+.table thead th {
+  background-color: var(--chop-ice);
+  color: var(--chop-navy);
+  position: sticky;
+  top: -1px;
+  z-index: 10;
+}
+
+.table-striped > tbody > tr:nth-of-type(odd) {
+  --bs-table-accent-bg: var(--chop-stone);
+}
+
+.badge.bg-primary,
+.badge.bg-info {
+  background-color: var(--chop-teal) !important;
+}
+
+footer {
+  background-color: var(--chop-ice);
+  color: var(--chop-brown);
+  border-top: 4px solid var(--chop-teal-dark);
+}
