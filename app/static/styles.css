@@ -23,6 +23,23 @@ body {
   min-height: 100vh;
 }
 
+.has-dev-banner {
+  padding-top: 130px;
+}
+
+.dev-banner {
+  position: fixed;
+  top: 70px;
+  left: 0;
+  right: 0;
+  z-index: 1020;
+  border-bottom: 4px solid var(--chop-teal-dark);
+}
+
+.dev-banner .bi {
+  margin-right: 0.5rem;
+}
+
 h1,
 h2,
 h3,
