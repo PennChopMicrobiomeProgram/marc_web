@@ -18,7 +18,7 @@
   <script src="{{ url_for('static', filename='table.js') }}"></script>
   {% block head %}{% endblock %}
 </head>
-<body class="container-fluid">
+<body class="container-fluid{% if is_dev_site %} has-dev-banner{% endif %}">
   <nav class="navbar navbar-expand-lg navbar-light fixed-top">
     <div class="container-fluid">
       <a class="navbar-brand" href="{{ url_for('index') }}">microbialARC</a>
@@ -56,6 +56,13 @@
       </div>
     </div>
   </nav>
+
+  {% if is_dev_site %}
+  <div class="dev-banner alert alert-warning text-center mb-0" role="alert">
+    <i class="bi bi-exclamation-triangle-fill"></i>
+    You're on a development version of the site. None of the data on this site is real/guaranteed to stick around.
+  </div>
+  {% endif %}
 
   <script>
     $(document).ready(function () {
