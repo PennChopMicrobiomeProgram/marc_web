@@ -30,30 +30,53 @@
 {% endblock %}
 
 {% block body %}
+<div class="container cards view view-articles view-id-articles view-display-id-featured_list_item_well py-5">
+  <div class="view-content row">
+    <div class="views-row">
+      <div class="views-field views-field-title">
+        <h2 class="field-content location-title" style="text-transform:none;">
+          <a href="https://www.research.chop.edu/clinical-research-finder">Help Us Drive Breakthroughs in Children’s Healthcare</a>
+        </h2>
+      </div>
+      <div class="views-field views-field-field-image">
+        <div class="field-content">
+          <img src="https://www.research.chop.edu/sites/default/files/2020-04/CT_FINDER_FEATURED.jpg" alt="Help Us Drive Breakthroughs in Children’s Healthcare" title="Help Us Drive Breakthroughs in Children’s Healthcare" class="image-style-featured-image-based-list">
+        </div>
+      </div>
+      <div class="views-field views-field-field-short-description-plain">
+        <div class="field-content">
+          <p>
+            The microbial ARchive and Cryo-collection (microbialARC) at the Children’s Hospital of Philadelphia is a
+            biorepository and research platform dedicated to preserving and studying both pathogenic and commensal microorganisms. We are building a meticulously curated strain library that advances the field of microbial genomics by integrating advanced cryo-preservation with genomic and phenotypic characterization.
+          </p>
+          <p>
+            We collaborate closely with clinicians and basic researchers to collect, culture, and sequence microorganisms that shape human health and disease. Through the systematic preservation and genomic characterization of these isolates, microbialARC supports precision surveillance for infection prevention, outbreak response, and mechanistic studies of the microbiome.
+          </p>
+          <p>
+            Our mission is to transform microbial collections into a dynamic resource for discovery—bridging clinical microbiology, genomics, and bioinformatics to accelerate the development of innovative live biotherapeutics and next-generation tools for understanding microbial evolution and antibiotic resistance. By linking clinical, environmental, and genomic data, microbialARC empowers precision medicine and global health initiatives aimed at improving outcomes for children and communities worldwide.
+          </p>
+          <p>
+            The database currently holds {{ isolate_count }} isolates from {{ patient_count }} patients.
+          </p>
+          <p class="mb-2">The efforts to curate the isolates include:</p>
+          <ul class="list-unstyled mb-0">
+            {% for collection, val in special_collection_counts.items() %}
+            <li class="mb-2"><strong>{{ collection }}</strong> ({{ val[0] }} isolates){% if val[1] %} - {{ val[1] }}{% endif %}</li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+      <div class="views-field views-field-view-node">
+        <div class="field-content btn readmore">
+          <a href="{{ url_for('browse_isolates') }}" hreflang="en">Browse Isolates</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="container py-5">
-  <h3 class="mb-3 text-center">Welcome to the Microbial ARchive and Cryo-collection!</h3>
-  <p>
-    The microbial ARchive and Cryo-collection (microbialARC) at the Children’s Hospital of Philadelphia is a
-    biorepository and research platform dedicated to preserving and studying both pathogenic and commensal microorganisms. We are building a meticulously curated strain library that advances the field of microbial genomics by integrating advanced cryo-preservation with genomic and phenotypic characterization.
-  </p>
-  <p>
-    We collaborate closely with clinicians and basic researchers to collect, culture, and sequence microorganisms that shape human health and disease. Through the systematic preservation and genomic characterization of these isolates, microbialARC supports precision surveillance for infection prevention, outbreak response, and mechanistic studies of the microbiome.
-  </p>
-  <p>
-    Our mission is to transform microbial collections into a dynamic resource for discovery—bridging clinical microbiology, genomics, and bioinformatics to accelerate the development of innovative live biotherapeutics and next-generation tools for understanding microbial evolution and antibiotic resistance. By linking clinical, environmental, and genomic data, microbialARC empowers precision medicine and global health initiatives aimed at improving outcomes for children and communities worldwide.
-  </p>
-  <p>
-    The database currently holds {{ isolate_count }} isolates from {{ patient_count }} patients.
-  </p>
-
-  <p>The efforts to curate the isolates include:</p>
-  <ul class="list-unstyled">
-    {% for collection, val in special_collection_counts.items() %}
-    <li class="mb-2"><strong>{{ collection }}</strong> ({{ val[0] }} isolates){% if val[1] %} - {{ val[1] }}{% endif %}</li>
-    {% endfor %}
-  </ul>
-
-  <div class="chop-banner-row mt-5">
+  <div class="chop-banner-row">
     <img
       src="{{ url_for('static', filename='CHOP_Center_for_Microbial_Medicine.jpg') }}"
       class="chop-banner"
