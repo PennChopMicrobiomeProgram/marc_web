@@ -23,6 +23,23 @@ export MARC_DB_URL=sqlite:////path/to/marc_web/db.sqlite && export MARC_DB_LAST_
 
 You'll need to create `/path/to/marc_web/db.sqlite` using [marc_db](https://github.com/PennChopMicrobiomeProgram/marc_db) and (optionally) `/path/to/last_sync` with a date/time stamp.
 
+### Local synthetic database
+
+For quick UI testing (including pagination for aliquots) you can generate a synthetic SQLite database with the helper script in this repo:
+
+```
+python scripts/create_test_db.py /tmp/marc_test.sqlite --last-sync-file /tmp/marc_last_sync.txt
+export MARC_DB_URL=sqlite:////tmp/marc_test.sqlite
+export MARC_DB_LAST_SYNC=/tmp/marc_last_sync.txt
+flask --app app/app run --debug
+```
+
+Once the app is running locally you can explore:
+
+- `http://127.0.0.1:5000/aliquots` for paginated aliquot browsing (300 synthetic aliquots by default)
+- `http://127.0.0.1:5000/isolates` for isolate browsing
+- `http://127.0.0.1:5000/api/*` endpoints (e.g., `/api/aliquots`, `/api/assemblies`) for JSON responses
+
 ### Docker
 
 To test the containerized version locally,
