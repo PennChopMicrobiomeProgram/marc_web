@@ -1,2 +1,2 @@
-black~=25.9
+black~=25.11
 pytest~=9.0
