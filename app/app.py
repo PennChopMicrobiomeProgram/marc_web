@@ -140,10 +140,17 @@ def api_isolates():
 
 @app.route("/isolate/<isolate_id>")
 def show_isolate(isolate_id):
-    isolate = get_isolates(db.session, isolate_id)
-    if not isolate or isolate[0] is None:
+    isolate_records = get_isolates(db.session, isolate_id)
+    if not isolate_records or isolate_records[0] is None:
         return render_template("dne.html", isolate_id=isolate_id)
-    return render_template("show_isolate.html", isolate=isolate[0])
+    isolate = isolate_records[0]
+    assemblies = (
+        db.session.query(Assembly)
+        .filter(Assembly.isolate_id == isolate.sample_id)
+        .order_by(Assembly.id)
+        .all()
+    )
+    return render_template("show_isolate.html", isolate=isolate, assemblies=assemblies)
 
 
 @app.route("/aliquots")
