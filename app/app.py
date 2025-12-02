@@ -140,10 +140,17 @@ def api_isolates():
 
 @app.route("/isolate/<isolate_id>")
 def show_isolate(isolate_id):
-    isolate = get_isolates(db.session, isolate_id)
-    if not isolate or isolate[0] is None:
+    isolate_records = get_isolates(db.session, isolate_id)
+    if not isolate_records or isolate_records[0] is None:
         return render_template("dne.html", isolate_id=isolate_id)
-    return render_template("show_isolate.html", isolate=isolate[0])
+    isolate = isolate_records[0]
+    assemblies = (
+        db.session.query(Assembly)
+        .filter(Assembly.isolate_id == isolate.sample_id)
+        .order_by(Assembly.id)
+        .all()
+    )
+    return render_template("show_isolate.html", isolate=isolate, assemblies=assemblies)
 
 
 @app.route("/aliquots")
@@ -181,7 +188,25 @@ def browse_assembly_qc():
 
 @app.route("/api/assembly_qc")
 def api_assembly_qc():
-    return datatables_response(select(AssemblyQC))
+    query = (
+        select(
+            AssemblyQC.assembly_id,
+            Assembly.isolate_id.label("isolate_id"),
+            AssemblyQC.contig_count,
+            AssemblyQC.genome_size,
+            AssemblyQC.n50,
+            AssemblyQC.gc_content,
+            AssemblyQC.cds,
+            AssemblyQC.completeness,
+            AssemblyQC.contamination,
+            AssemblyQC.min_contig_coverage,
+            AssemblyQC.avg_contig_coverage,
+            AssemblyQC.max_contig_coverage,
+        )
+        .join(Assembly)
+        .order_by(AssemblyQC.assembly_id)
+    )
+    return datatables_response(query)
 
 
 @app.route("/assembly_qc/<int:assembly_id>")
@@ -209,7 +234,25 @@ def browse_taxonomic_assignments():
 
 @app.route("/api/taxonomic_assignments")
 def api_taxonomic_assignments():
-    return datatables_response(select(TaxonomicAssignment))
+    query = (
+        select(
+            TaxonomicAssignment.assembly_id,
+            Assembly.isolate_id.label("isolate_id"),
+            TaxonomicAssignment.tool,
+            TaxonomicAssignment.classification,
+            TaxonomicAssignment.comment,
+            TaxonomicAssignment.taxonomic_classification,
+            TaxonomicAssignment.taxonomic_abundance,
+            TaxonomicAssignment.mash_contamination,
+            TaxonomicAssignment.mash_contaminated_spp,
+            TaxonomicAssignment.st,
+            TaxonomicAssignment.st_schema,
+            TaxonomicAssignment.allele_assignment,
+        )
+        .join(Assembly)
+        .order_by(TaxonomicAssignment.assembly_id)
+    )
+    return datatables_response(query)
 
 
 @app.route("/taxonomic_assignments/<int:assembly_id>")
@@ -236,7 +279,22 @@ def browse_antimicrobials():
 
 @app.route("/api/antimicrobials")
 def api_antimicrobials():
-    return datatables_response(select(Antimicrobial))
+    query = (
+        select(
+            Antimicrobial.id,
+            Antimicrobial.assembly_id,
+            Assembly.isolate_id.label("isolate_id"),
+            Antimicrobial.contig_id,
+            Antimicrobial.gene_symbol,
+            Antimicrobial.gene_name,
+            Antimicrobial.accession,
+            Antimicrobial.element_type,
+            Antimicrobial.resistance_product,
+        )
+        .join(Assembly)
+        .order_by(Antimicrobial.id)
+    )
+    return datatables_response(query)
 
 
 @app.route("/antimicrobial/<int:antimicrobial_id>")
@@ -263,17 +321,19 @@ def show_assembly(assembly_id: int):
     if not assemblies or assemblies[0] is None:
         return render_template("dne.html", assembly_id=assembly_id)
     assembly = assemblies[0]
-    qc = assembly.assembly_qcs
+    qc = assembly.assembly_qc
     assignment = (
         assembly.taxonomic_assignments[0] if assembly.taxonomic_assignments else None
     )
     antimicrobials = list(assembly.antimicrobials) if assembly.antimicrobials else []
+    contaminants = list(assembly.contaminants) if assembly.contaminants else []
     return render_template(
         "show_assembly.html",
         assembly=assembly,
         qc=qc,
         assignment=assignment,
         antimicrobials=antimicrobials,
+        contaminants=contaminants,
     )
 
 

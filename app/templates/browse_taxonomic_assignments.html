@@ -12,8 +12,13 @@
         <tr>
           <th>Assembly ID</th>
           <th>Isolate ID</th>
+          <th>Tool</th>
+          <th>Classification</th>
+          <th>Comment</th>
           <th>Taxonomic Classification</th>
           <th>Taxonomic Abundance</th>
+          <th>Mash Contamination</th>
+          <th>Mash Contaminated Species</th>
           <th>ST</th>
           <th>ST Schema</th>
           <th>Allele Assignment</th>
@@ -30,8 +35,13 @@ $(document).ready(function () {
     const oTable = createServerDataTable('#taxonomic_assignments', '{{ url_for('api_taxonomic_assignments') }}', [
         { data: 'assembly_id', render: function(d) { return '<a href="' + assignmentUrl + d + '">' + d + '</a>'; } },
         { data: 'isolate_id' },
+        { data: 'tool' },
+        { data: 'classification' },
+        { data: 'comment' },
         { data: 'taxonomic_classification' },
         { data: 'taxonomic_abundance' },
+        { data: 'mash_contamination' },
+        { data: 'mash_contaminated_spp' },
         { data: 'st' },
         { data: 'st_schema' },
         { data: 'allele_assignment' }
