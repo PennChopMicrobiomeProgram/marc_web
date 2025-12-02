@@ -42,6 +42,9 @@
 
         <dt class="col-sm-4">Sunbeam Output Path</dt>
         <dd class="col-sm-8">{{ assembly.sunbeam_output_path or '—' }}</dd>
+
+        <dt class="col-sm-4">NCBI ID</dt>
+        <dd class="col-sm-8">{{ assembly.ncbi_id or '—' }}</dd>
       </dl>
     </div>
   </div>
@@ -80,6 +83,15 @@
 
             <dt class="col-sm-5">Contamination</dt>
             <dd class="col-sm-7">{{ qc.contamination or '—' }}</dd>
+
+            <dt class="col-sm-5">Min Contig Coverage</dt>
+            <dd class="col-sm-7">{{ qc.min_contig_coverage or '—' }}</dd>
+
+            <dt class="col-sm-5">Avg Contig Coverage</dt>
+            <dd class="col-sm-7">{{ qc.avg_contig_coverage or '—' }}</dd>
+
+            <dt class="col-sm-5">Max Contig Coverage</dt>
+            <dd class="col-sm-7">{{ qc.max_contig_coverage or '—' }}</dd>
           </dl>
           {% else %}
           <p class="text-muted mb-0">No QC metrics recorded for this assembly.</p>
@@ -163,6 +175,43 @@
       </div>
       {% else %}
       <p class="text-muted mb-0">No antimicrobial markers recorded for this assembly.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="card shadow-sm mt-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h3 class="h5 mb-0">Contaminants</h3>
+      {% if contaminants %}
+      <span class="badge bg-primary">{{ contaminants|length }}</span>
+      {% endif %}
+    </div>
+    <div class="card-body">
+      {% if contaminants %}
+      <div class="table-responsive">
+        <table class="table table-striped mb-0">
+          <thead>
+            <tr>
+              <th scope="col">ID</th>
+              <th scope="col">Tool</th>
+              <th scope="col">Confidence</th>
+              <th scope="col">Classification</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for contaminant in contaminants %}
+            <tr>
+              <td>{{ contaminant.id }}</td>
+              <td>{{ contaminant.tool or '—' }}</td>
+              <td>{{ contaminant.confidence or '—' }}</td>
+              <td>{{ contaminant.classification or '—' }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <p class="text-muted mb-0">No contaminants reported for this assembly.</p>
       {% endif %}
     </div>
   </div>

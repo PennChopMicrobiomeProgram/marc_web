@@ -19,6 +19,7 @@
           <th>Sunbeam Version</th>
           <th>SBX SGA Version</th>
           <th>Sunbeam Output Path</th>
+          <th>NCBI ID</th>
         </tr>
       </thead>
       <tbody></tbody>
@@ -38,7 +39,8 @@ $(document).ready(function () {
         { data: 'run_number' },
         { data: 'sunbeam_version' },
         { data: 'sbx_sga_version' },
-        { data: 'sunbeam_output_path' }
+        { data: 'sunbeam_output_path' },
+        { data: 'ncbi_id' }
     ]);
 
     $('#assemblies_filter').appendTo('#assemblies_summary');
