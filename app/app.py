@@ -241,13 +241,6 @@ def api_taxonomic_assignments():
             TaxonomicAssignment.tool,
             TaxonomicAssignment.classification,
             TaxonomicAssignment.comment,
-            TaxonomicAssignment.taxonomic_classification,
-            TaxonomicAssignment.taxonomic_abundance,
-            TaxonomicAssignment.mash_contamination,
-            TaxonomicAssignment.mash_contaminated_spp,
-            TaxonomicAssignment.st,
-            TaxonomicAssignment.st_schema,
-            TaxonomicAssignment.allele_assignment,
         )
         .join(Assembly)
         .order_by(TaxonomicAssignment.assembly_id)
@@ -322,8 +315,8 @@ def show_assembly(assembly_id: int):
         return render_template("dne.html", assembly_id=assembly_id)
     assembly = assemblies[0]
     qc = assembly.assembly_qc
-    assignment = (
-        assembly.taxonomic_assignments[0] if assembly.taxonomic_assignments else None
+    assignments = (
+        list(assembly.taxonomic_assignments) if assembly.taxonomic_assignments else []
     )
     antimicrobials = list(assembly.antimicrobials) if assembly.antimicrobials else []
     contaminants = list(assembly.contaminants) if assembly.contaminants else []
@@ -331,7 +324,7 @@ def show_assembly(assembly_id: int):
         "show_assembly.html",
         assembly=assembly,
         qc=qc,
-        assignment=assignment,
+        assignments=assignments,
         antimicrobials=antimicrobials,
         contaminants=contaminants,
     )

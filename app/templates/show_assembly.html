@@ -54,11 +54,6 @@
       <div class="card h-100 shadow-sm">
         <div class="card-header d-flex justify-content-between align-items-center">
           <h3 class="h5 mb-0">Assembly QC</h3>
-          {% if qc %}
-          <a class="btn btn-sm btn-outline-primary" href="{{ url_for('show_assembly_qc', assembly_id=assembly.id) }}">
-            View QC Details
-          </a>
-          {% endif %}
         </div>
         <div class="card-body">
           {% if qc %}
@@ -103,33 +98,35 @@
     <div class="col-lg-6">
       <div class="card h-100 shadow-sm">
         <div class="card-header d-flex justify-content-between align-items-center">
-          <h3 class="h5 mb-0">Taxonomic Assignment</h3>
-          {% if assignment %}
-          <a class="btn btn-sm btn-outline-primary" href="{{ url_for('show_taxonomic_assignment', assembly_id=assembly.id) }}">
-            View Assignment
-          </a>
+          <h3 class="h5 mb-0">Taxonomic Assignments</h3>
+          {% if assignments %}
+          <span class="badge bg-primary">{{ assignments|length }}</span>
           {% endif %}
         </div>
         <div class="card-body">
-          {% if assignment %}
-          <dl class="row mb-0">
-            <dt class="col-sm-5">Classification</dt>
-            <dd class="col-sm-7">{{ assignment.taxonomic_classification or '—' }}</dd>
-
-            <dt class="col-sm-5">Abundance</dt>
-            <dd class="col-sm-7">{{ assignment.taxonomic_abundance or '—' }}</dd>
-
-            <dt class="col-sm-5">ST</dt>
-            <dd class="col-sm-7">{{ assignment.st or '—' }}</dd>
-
-            <dt class="col-sm-5">ST Schema</dt>
-            <dd class="col-sm-7">{{ assignment.st_schema or '—' }}</dd>
-
-            <dt class="col-sm-5">Allele Assignment</dt>
-            <dd class="col-sm-7">{{ assignment.allele_assignment or '—' }}</dd>
-          </dl>
+          {% if assignments %}
+          <div class="table-responsive">
+            <table class="table table-striped mb-0">
+              <thead>
+                <tr>
+                  <th scope="col">Classification</th>
+                  <th scope="col">Comment</th>
+                  <th scope="col">Tool</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for assignment in assignments %}
+                <tr>
+                  <td>{{ assignment.classification or '—' }}</td>
+                  <td>{{ assignment.comment or '—' }}</td>
+                  <td>{{ assignment.tool or '—' }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
           {% else %}
-          <p class="text-muted mb-0">No taxonomic assignment has been recorded.</p>
+          <p class="text-muted mb-0">No taxonomic assignments recorded for this assembly.</p>
           {% endif %}
         </div>
       </div>
