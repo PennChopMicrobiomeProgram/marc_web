@@ -25,7 +25,13 @@
 <body class="container-fluid{% if is_dev_site %} has-dev-banner{% endif %}">
   <nav class="navbar navbar-expand-lg navbar-light fixed-top">
     <div class="container-fluid">
-      <a class="navbar-brand" href="{{ url_for('index') }}">microbialARC</a>
+      <a class="navbar-brand" href="{{ url_for('index') }}">
+        <img
+          src="{{ url_for('static', filename='CHOP_Center_for_Microbial_Medicine.jpg') }}"
+          class="chop-banner"
+          alt="Center for Microbial Medicine banner"
+        >
+      </a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu" aria-controls="navMenu" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
@@ -67,14 +73,6 @@
     You're on a development version of the site. None of the data on this site is real or guaranteed to stick around.
   </div>
   {% endif %}
-
-  <div class="header-banner" role="presentation">
-    <img
-      src="https://www.research.chop.edu/sites/default/files/2024-03/DETAIL_HEADER.png"
-      class="header-banner__image"
-      alt="Research laboratory detail banner"
-    >
-  </div>
 
   <script>
     $(document).ready(function () {

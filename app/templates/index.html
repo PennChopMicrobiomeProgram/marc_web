@@ -30,6 +30,14 @@
 {% endblock %}
 
 {% block body %}
+<div class="header-banner" role="presentation">
+  <img
+    src="{{ url_for('static', filename='blue_green.png') }}"
+    class="header-banner__image"
+    alt="Research laboratory detail banner"
+  >
+</div>
+
 <div class="container py-5">
   <h3 class="mb-3 text-center">Welcome to the Microbial ARchive and Cryo-collection!</h3>
   <p>
@@ -54,11 +62,6 @@
   </ul>
 
   <div class="chop-banner-row mt-5">
-    <img
-      src="{{ url_for('static', filename='CHOP_Center_for_Microbial_Medicine.jpg') }}"
-      class="chop-banner"
-      alt="Center for Microbial Medicine banner"
-    >
     <img
       src="{{ url_for('static', filename='CHOP_Microbiome_Center.jpg') }}"
       class="chop-banner"
