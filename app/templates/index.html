@@ -1,49 +1,20 @@
 {% extends 'base.html' %}
 
-{% block head %}
-<style>
-  .chop-banner-row {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 1.5rem;
-    flex-wrap: nowrap;
-    width: 100%;
-  }
-
-  .chop-banner {
-    flex: 0 1 clamp(220px, 40vw, 420px);
-    width: auto;
-    max-width: min(100%, 40vw);
-    height: clamp(120px, 18vw, 220px);
-    object-fit: contain;
-    border-radius: 0.5rem;
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-  }
-
-  @media (max-width: 576px) {
-    .chop-banner-row {
-      gap: 1rem;
-    }
-  }
-</style>
-{% endblock %}
-
 {% block body %}
 <div class="header-banner" role="presentation">
   <img
     src="{{ url_for('static', filename='blue_green.png') }}"
-    class="header-banner__image"
-    alt="Research laboratory detail banner"
+    class="header-banner-image"
+    alt=""
   >
 </div>
 
 <div class="container py-5">
-  <div class="container cards view view-articles view-id-articles view-display-id-featured_list_item_well">
+  <div class="container blue-card">
     <div class="view-content row">
       <div class="views-row">
         <div class="views-field views-field-title">
-          <h2 class="field-content location-title" style="text-transform:none;">Welcome to the Microbial ARchive and Cryo-collection!</h2>
+          <h3 class="field-content location-title" style="text-transform:none;">Welcome to the Microbial ARchive and Cryo-collection!</h3>
         </div>
         <div class="views-field views-field-field-image">
           <div class="field-content">
@@ -88,14 +59,6 @@
     <li class="mb-2"><strong>{{ collection }}</strong> ({{ val[0] }} isolates){% if val[1] %} - {{ val[1] }}{% endif %}</li>
     {% endfor %}
   </ul>
-
-  <div class="chop-banner-row mt-5">
-    <img
-      src="{{ url_for('static', filename='CHOP_Microbiome_Center.jpg') }}"
-      class="chop-banner"
-      alt="CHOP Microbiome Center banner"
-    >
-  </div>
 </div>
 
 <div>
