@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 
 
-__version__ = "0.3.4"
+__version__ = "0.3.5"
 __author__ = "Charlie Bushman"
 
 
