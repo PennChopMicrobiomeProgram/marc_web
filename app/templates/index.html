@@ -31,6 +31,34 @@
 
 {% block body %}
 <div class="container py-5">
+  <div class="container cards view view-articles view-id-articles view-display-id-featured_list_item_well">
+    <div class="view-content row">
+      <div class="views-row">
+        <div class="views-field views-field-title">
+          <h2 class="field-content location-title" style="text-transform:none;">Welcome to the Microbial ARchive and Cryo-collection!</h2>
+        </div>
+        <div class="views-field views-field-field-image">
+          <div class="field-content">
+            <img src="{{ url_for('static', filename='smiling_nurse.jpg') }}" alt="Welcome to the Microbial ARchive and Cryo-collection!" title="Welcome to the Microbial ARchive and Cryo-collection!" class="image-style-featured-image-based-list">
+          </div>
+        </div>
+        <div class="views-field views-field-field-short-description-plain">
+          <div class="field-content">The microbial ARchive and Cryo-collection (microbialARC) at the Children’s Hospital of Philadelphia is a biorepository and research platform dedicated to preserving and studying both pathogenic and commensal microorganisms. We are building a meticulously curated strain library that advances the field of microbial genomics by integrating advanced cryo-preservation with genomic and phenotypic characterization.
+          </div>
+          <div class="field-content">We collaborate closely with clinicians and basic researchers to collect, culture, and sequence microorganisms that shape human health and disease. Through the systematic preservation and genomic characterization of these isolates, microbialARC supports precision surveillance for infection prevention, outbreak response, and mechanistic studies of the microbiome.
+          </div>
+          <div class="field-content">Our mission is to transform microbial collections into a dynamic resource for discovery—bridging clinical microbiology, genomics, and bioinformatics to accelerate the development of innovative live biotherapeutics and next-generation tools for understanding microbial evolution and antibiotic resistance. By linking clinical, environmental, and genomic data, microbialARC empowers precision medicine and global health initiatives aimed at improving outcomes for children and communities worldwide.
+          </div>
+        </div>
+        <div class="views-field views-field-view-node">
+          <div class="field-content btn readmore">
+            <a href="https://www.research.chop.edu/clinical-research-finder" hreflang="en">View Our Studies</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <h3 class="mb-3 text-center">Welcome to the Microbial ARchive and Cryo-collection!</h3>
   <p>
     The microbial ARchive and Cryo-collection (microbialARC) at the Children’s Hospital of Philadelphia is a
