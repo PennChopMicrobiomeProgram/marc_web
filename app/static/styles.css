@@ -185,6 +185,13 @@ a:focus {
   background-color: var(--chop-ice);
   margin: 15px 0;
   padding: 3em;
+  overflow: auto;
+}
+.blue-card-image {
+  float: right;
+  max-width: 300px;
+  margin-left: 20px;
+  margin-bottom: 10px;
 }
 
 footer {
