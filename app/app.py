@@ -186,13 +186,16 @@ def api_assembly_metrics():
     metrics = (
         db.session.query(
             Assembly.id.label("assembly_id"),
+            Assembly.isolate_id.label("isolate_id"),
             AssemblyQC.contig_count,
             AssemblyQC.avg_contig_coverage,
             AssemblyQC.genome_size,
             AssemblyQC.completeness,
             AssemblyQC.contamination,
+            Isolate.suspected_organism,
         )
         .join(AssemblyQC, Assembly.id == AssemblyQC.assembly_id)
+        .outerjoin(Isolate, Assembly.isolate_id == Isolate.sample_id)
         .order_by(Assembly.id)
         .all()
     )
@@ -201,11 +204,13 @@ def api_assembly_metrics():
         "data": [
             {
                 "assembly_id": m.assembly_id,
+                "isolate_id": m.isolate_id,
                 "contig_count": m.contig_count,
                 "avg_contig_coverage": m.avg_contig_coverage,
                 "genome_size": m.genome_size,
                 "completeness": m.completeness,
                 "contamination": m.contamination,
+                "suspected_organism": m.suspected_organism,
             }
             for m in metrics
         ]
