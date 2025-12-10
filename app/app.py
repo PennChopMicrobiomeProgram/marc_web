@@ -178,7 +178,18 @@ def browse_assemblies():
 
 @app.route("/api/assemblies")
 def api_assemblies():
-    return datatables_response(select(Assembly))
+    query = select(
+        Assembly.id,
+        Assembly.isolate_id,
+        Assembly.metagenomic_sample_id,
+        Assembly.metagenomic_run_id,
+        Assembly.nanopore_path.isnot(None).label("nanopore"),
+        Assembly.run_number,
+        Assembly.sunbeam_version,
+        Assembly.sbx_sga_version,
+        Assembly.ncbi_id,
+    )
+    return datatables_response(query)
 
 
 @app.route("/assembly_qc")
