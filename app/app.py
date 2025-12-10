@@ -181,6 +181,37 @@ def api_assemblies():
     return datatables_response(select(Assembly))
 
 
+@app.route("/api/assemblies/metrics")
+def api_assembly_metrics():
+    metrics = (
+        db.session.query(
+            Assembly.id.label("assembly_id"),
+            AssemblyQC.contig_count,
+            AssemblyQC.avg_contig_coverage,
+            AssemblyQC.genome_size,
+            AssemblyQC.completeness,
+            AssemblyQC.contamination,
+        )
+        .join(AssemblyQC, Assembly.id == AssemblyQC.assembly_id)
+        .order_by(Assembly.id)
+        .all()
+    )
+
+    return {
+        "data": [
+            {
+                "assembly_id": m.assembly_id,
+                "contig_count": m.contig_count,
+                "avg_contig_coverage": m.avg_contig_coverage,
+                "genome_size": m.genome_size,
+                "completeness": m.completeness,
+                "contamination": m.contamination,
+            }
+            for m in metrics
+        ]
+    }
+
+
 @app.route("/assembly_qc")
 def browse_assembly_qc():
     return render_template("browse_assembly_qc.html")

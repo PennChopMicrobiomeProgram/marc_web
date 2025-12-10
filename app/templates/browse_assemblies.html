@@ -1,5 +1,9 @@
 {% extends 'base.html' %}
 
+{% block head %}
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+{% endblock %}
+
 {% block body %}
 <div id="assemblies_summary" class="summary span-24 last">
   <h2>Assemblies</h2>
@@ -27,6 +31,45 @@
   </div>
 </div>
 
+<div class="container pb-4">
+  <div class="row g-4">
+    <div class="col-lg-4 col-md-6">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <h5 class="card-title">Contig Count</h5>
+          <canvas id="contigCountChart" height="250"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-4 col-md-6">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <h5 class="card-title">Average Contig Coverage</h5>
+          <canvas id="avgCoverageChart" height="250"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-4 col-md-6">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <h5 class="card-title">Genome Size</h5>
+          <canvas id="genomeSizeChart" height="250"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row g-4 mt-1">
+    <div class="col-12">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <h5 class="card-title">Completeness vs Contamination</h5>
+          <canvas id="contaminationCompletenessChart" height="320"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script type="text/javascript">
 $(document).ready(function () {
     const assemblyUrl = "{{ url_for('show_assembly', assembly_id=0)[:-1] }}";
@@ -47,6 +90,156 @@ $(document).ready(function () {
     $('#assemblies_info').addClass('span-12');
     $('#assemblies_paginate').addClass('span-12 last');
     oTable.draw();
+
+    function isNumericValue(value) {
+        return typeof value === 'number' && !Number.isNaN(value);
+    }
+
+    function buildHistogram(values, binCount = 10) {
+        const filtered = values.filter(isNumericValue);
+        if (filtered.length === 0) {
+            return { labels: [], counts: [] };
+        }
+
+        const min = Math.min(...filtered);
+        const max = Math.max(...filtered);
+        const range = max - min;
+        const binSize = range === 0 ? 1 : range / binCount;
+        const counts = new Array(binCount).fill(0);
+
+        filtered.forEach((value) => {
+            const binIndex = binSize === 0 ? 0 : Math.min(binCount - 1, Math.floor((value - min) / binSize));
+            counts[binIndex] += 1;
+        });
+
+        const labels = counts.map((_, idx) => {
+            const start = min + idx * binSize;
+            const end = start + binSize;
+            const formatter = binSize >= 10 ? (num) => Math.round(num).toLocaleString() : (num) => num.toFixed(2);
+            return `${formatter(start)} - ${formatter(end)}`;
+        });
+
+        return { labels, counts };
+    }
+
+    function renderHistogram(canvasId, values, datasetLabel, xLabel) {
+        const { labels, counts } = buildHistogram(values);
+        const context = document.getElementById(canvasId);
+
+        if (!context) {
+            return;
+        }
+
+        new Chart(context, {
+            type: 'bar',
+            data: {
+                labels,
+                datasets: [
+                    {
+                        label: datasetLabel,
+                        data: counts,
+                        backgroundColor: 'rgba(46, 204, 113, 0.6)',
+                        borderColor: 'rgba(46, 204, 113, 1)',
+                        borderWidth: 1,
+                    },
+                ],
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false },
+                },
+                scales: {
+                    x: {
+                        title: { display: true, text: xLabel },
+                        ticks: { maxRotation: 45, minRotation: 45 },
+                    },
+                    y: {
+                        title: { display: true, text: 'Assemblies' },
+                        beginAtZero: true,
+                        precision: 0,
+                    },
+                },
+            },
+        });
+    }
+
+    function renderScatter(metrics) {
+        const points = metrics
+            .filter((m) => isNumericValue(m.contamination) && isNumericValue(m.completeness))
+            .map((m) => ({ x: m.contamination, y: m.completeness, assemblyId: m.assembly_id }));
+        const context = document.getElementById('contaminationCompletenessChart');
+        if (!context) {
+            return;
+        }
+
+        new Chart(context, {
+            type: 'scatter',
+            data: {
+                datasets: [
+                    {
+                        label: 'Assemblies',
+                        data: points,
+                        backgroundColor: 'rgba(52, 152, 219, 0.7)',
+                    },
+                ],
+            },
+            options: {
+                parsing: false,
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: (context) => {
+                                const { x, y, assemblyId } = context.raw;
+                                return `Assembly ${assemblyId}: Contamination ${x}, Completeness ${y}`;
+                            },
+                        },
+                    },
+                    legend: { display: false },
+                },
+                scales: {
+                    x: {
+                        title: { display: true, text: 'Contamination' },
+                    },
+                    y: {
+                        title: { display: true, text: 'Completeness' },
+                    },
+                },
+                onClick: (_event, elements) => {
+                    if (!elements.length) return;
+                    const { assemblyId } = elements[0].element.$context.raw;
+                    if (assemblyId) {
+                        window.location.href = `${assemblyUrl}${assemblyId}`;
+                    }
+                },
+            },
+        });
+    }
+
+    fetch('{{ url_for('api_assembly_metrics') }}')
+        .then((response) => response.json())
+        .then((payload) => payload.data || [])
+        .then((metrics) => {
+            renderHistogram(
+                'contigCountChart',
+                metrics.map((m) => m.contig_count),
+                'Contig Count',
+                'Contig Count (binned)'
+            );
+            renderHistogram(
+                'avgCoverageChart',
+                metrics.map((m) => m.avg_contig_coverage),
+                'Average Contig Coverage',
+                'Average Coverage (binned)'
+            );
+            renderHistogram(
+                'genomeSizeChart',
+                metrics.map((m) => m.genome_size),
+                'Genome Size',
+                'Genome Size (binned)'
+            );
+            renderScatter(metrics);
+        });
 });
 </script>
 {% endblock %}
