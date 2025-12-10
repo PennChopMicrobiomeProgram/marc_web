@@ -133,6 +133,11 @@ def browse_isolates():
     return render_template("browse_isolates.html")
 
 
+@app.route("/isolate-stats")
+def isolate_stats():
+    return render_template("isolate_stats.html")
+
+
 @app.route("/api/isolates")
 def api_isolates():
     return datatables_response(select(Isolate))
@@ -190,6 +195,42 @@ def api_assemblies():
         Assembly.ncbi_id,
     )
     return datatables_response(query)
+
+
+@app.route("/api/assemblies/metrics")
+def api_assembly_metrics():
+    metrics = (
+        db.session.query(
+            Assembly.id.label("assembly_id"),
+            Assembly.isolate_id.label("isolate_id"),
+            AssemblyQC.contig_count,
+            AssemblyQC.avg_contig_coverage,
+            AssemblyQC.genome_size,
+            AssemblyQC.completeness,
+            AssemblyQC.contamination,
+            Isolate.suspected_organism,
+        )
+        .join(AssemblyQC, Assembly.id == AssemblyQC.assembly_id)
+        .outerjoin(Isolate, Assembly.isolate_id == Isolate.sample_id)
+        .order_by(Assembly.id)
+        .all()
+    )
+
+    return {
+        "data": [
+            {
+                "assembly_id": m.assembly_id,
+                "isolate_id": m.isolate_id,
+                "contig_count": m.contig_count,
+                "avg_contig_coverage": m.avg_contig_coverage,
+                "genome_size": m.genome_size,
+                "completeness": m.completeness,
+                "contamination": m.contamination,
+                "suspected_organism": m.suspected_organism,
+            }
+            for m in metrics
+        ]
+    }
 
 
 @app.route("/assembly_qc")
