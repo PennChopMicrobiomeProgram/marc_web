@@ -133,6 +133,11 @@ def browse_isolates():
     return render_template("browse_isolates.html")
 
 
+@app.route("/isolate-stats")
+def isolate_stats():
+    return render_template("isolate_stats.html")
+
+
 @app.route("/api/isolates")
 def api_isolates():
     return datatables_response(select(Isolate))
