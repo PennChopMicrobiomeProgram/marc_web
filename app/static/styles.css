@@ -27,7 +27,7 @@ body {
   font-size: 16px;
   line-height: 1.4;
   color: var(--chop-brown);
-  background-color: var(--chop-ivory);
+  /* background-color: var(--chop-ivory); */
   padding-top: 70px;
   min-height: 100vh;
 }
@@ -92,13 +92,17 @@ a {
 
 a:hover,
 a:focus {
-  color: var(--chop-olive);
+  color: var(--chop-ice);
+  background-color: var(--chop-navy);
+  padding: 2px 4px;
+  border-radius: 3px;
+  transition: all 0.2s ease-in-out;
 }
 
 .navbar {
   background-color: #ffffff !important;
-  border-bottom: 6px solid var(--chop-teal-dark);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+  /* border-bottom: 6px solid var(--chop-teal-dark);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08); */
 }
 
 .navbar-brand,
@@ -113,7 +117,10 @@ a:focus {
 .navbar .nav-link:hover,
 .navbar .nav-link:focus,
 .navbar .nav-link.active {
-  color: var(--chop-teal) !important;
+  color: var(--chop-ice) !important;
+  background-color: var(--chop-navy) !important;
+  border-radius: 4px;
+  transition: all 0.2s ease-in-out;
 }
 
 .navbar-brand {
@@ -183,7 +190,7 @@ a:focus {
 
 .blue-card {
   background-color: var(--chop-ice);
-  margin: 15px 0;
+  margin: 25px 0;
   padding: 3em;
   overflow: auto;
 }
