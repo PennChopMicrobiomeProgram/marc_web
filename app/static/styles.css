@@ -15,8 +15,119 @@
 
 @font-face {
   font-family: "Rubrik";
-  src: url("https://www.research.chop.edu/themes/custom/chopresearch/fonts/rubrik-regular-webfont.woff2")
-    format("woff2");
+  src: url("/static/fonts/rubrik/TPRubrik-ExtraLight.woff2") format("woff2");
+  font-weight: 200;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Rubrik";
+  src: url("/static/fonts/rubrik/TPRubrik-ExtraLightItalic.woff2") format("woff2");
+  font-weight: 200;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Rubrik";
+  src: url("/static/fonts/rubrik/TPRubrik-Light.woff2") format("woff2");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Rubrik";
+  src: url("/static/fonts/rubrik/TPRubrik-LightItalic.woff2") format("woff2");
+  font-weight: 300;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Rubrik";
+  src: url("/static/fonts/rubrik/TPRubrik-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Rubrik";
+  src: url("/static/fonts/rubrik/TPRubrik-RegularItalic.woff2") format("woff2");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Rubrik";
+  src: url("/static/fonts/rubrik/TPRubrik-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Rubrik";
+  src: url("/static/fonts/rubrik/TPRubrik-MediumItalic.woff2") format("woff2");
+  font-weight: 500;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Rubrik";
+  src: url("/static/fonts/rubrik/TPRubrik-SemiBold.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Rubrik";
+  src: url("/static/fonts/rubrik/TPRubrik-SemiBoldItalic.woff2") format("woff2");
+  font-weight: 600;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Rubrik";
+  src: url("/static/fonts/rubrik/TPRubrik-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Rubrik";
+  src: url("/static/fonts/rubrik/TPRubrik-BoldItalic.woff2") format("woff2");
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Rubrik";
+  src: url("/static/fonts/rubrik/TPRubrik-ExtraBold.woff2") format("woff2");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Rubrik";
+  src: url("/static/fonts/rubrik/TPRubrik-ExtraBoldItalic.woff2") format("woff2");
+  font-weight: 800;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Rubrik-Regular";
+  src: url("/static/fonts/rubrik/TPRubrik-Regular.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
