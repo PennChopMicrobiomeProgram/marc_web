@@ -90,8 +90,8 @@ a {
   text-decoration: underline;
 }
 
-a:not(.navbar-brand):hover,
-a:not(.navbar-brand):focus {
+a:not(.navbar-brand):not(.nav-link):not(.dropdown-item):hover,
+a:not(.navbar-brand):not(.nav-link):not(.dropdown-item):focus {
   color: var(--chop-ice);
   background-color: var(--chop-navy);
   padding: 2px 4px;
@@ -120,7 +120,7 @@ a:not(.navbar-brand):focus {
   color: var(--chop-ice) !important;
   background-color: var(--chop-navy) !important;
   border-radius: 4px;
-  transition: all 0.2s ease-in-out;
+  transition: color 0.2s ease-in-out, background-color 0.2s ease-in-out;
 }
 
 .navbar-brand {
@@ -146,6 +146,20 @@ a:not(.navbar-brand):focus {
 
 .navbar-nav .nav-link {
   padding: 0.5rem 0.85rem;
+}
+
+.dropdown-menu .dropdown-item {
+  color: var(--chop-navy);
+  padding: 0.5rem 0.85rem;
+}
+
+.dropdown-menu .dropdown-item:hover,
+.dropdown-menu .dropdown-item:focus,
+.dropdown-menu .dropdown-item.active {
+  color: var(--chop-ice);
+  background-color: var(--chop-navy);
+  border-radius: 4px;
+  transition: color 0.2s ease-in-out, background-color 0.2s ease-in-out;
 }
 
 .header-banner {
