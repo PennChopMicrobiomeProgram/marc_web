@@ -90,8 +90,8 @@ a {
   text-decoration: underline;
 }
 
-a:hover,
-a:focus {
+a:not(.navbar-brand):hover,
+a:not(.navbar-brand):focus {
   color: var(--chop-ice);
   background-color: var(--chop-navy);
   padding: 2px 4px;
