@@ -90,8 +90,8 @@ a {
   text-decoration: underline;
 }
 
-a:hover,
-a:focus {
+a:not(.navbar-brand):not(.nav-link):not(.dropdown-item):hover,
+a:not(.navbar-brand):not(.nav-link):not(.dropdown-item):focus {
   color: var(--chop-ice);
   background-color: var(--chop-navy);
   padding: 2px 4px;
@@ -120,16 +120,46 @@ a:focus {
   color: var(--chop-ice) !important;
   background-color: var(--chop-navy) !important;
   border-radius: 4px;
-  transition: all 0.2s ease-in-out;
+  transition: color 0.2s ease-in-out, background-color 0.2s ease-in-out;
 }
 
 .navbar-brand {
   font-size: 1.25rem;
-  padding-right: 1rem;
+  margin-right: var(--bs-navbar-brand-margin-end);
+  padding: 0;
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+  transition: none;
+}
+
+.navbar-brand:hover,
+.navbar-brand:focus,
+.navbar-brand:active,
+.navbar-brand:focus-visible {
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
 }
 
 .navbar-nav .nav-link {
   padding: 0.5rem 0.85rem;
+}
+
+.dropdown-menu .dropdown-item {
+  color: var(--chop-navy);
+  padding: 0.5rem 0.85rem;
+}
+
+.dropdown-menu .dropdown-item:hover,
+.dropdown-menu .dropdown-item:focus,
+.dropdown-menu .dropdown-item.active {
+  color: var(--chop-ice);
+  background-color: var(--chop-navy);
+  border-radius: 4px;
+  transition: color 0.2s ease-in-out, background-color 0.2s ease-in-out;
 }
 
 .header-banner {
@@ -147,14 +177,15 @@ a:focus {
 }
 
 .chop-banner {
-    max-height: 50px;
-    width: auto;
-    height: auto;
-    object-fit: contain;
-    box-shadow: none;
-    filter: none;
-    border-radius: 0;
-  }
+  max-height: 50px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  box-shadow: none;
+  filter: none;
+  border-radius: 0;
+  border: none;
+}
 
 .btn-primary,
 .btn-info {
