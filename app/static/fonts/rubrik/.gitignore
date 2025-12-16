@@ -1,3 +1,0 @@
-# Rubrik font binaries are supplied separately and should not be committed.
-*.woff2
-!README.md
