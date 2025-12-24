@@ -28,6 +28,21 @@ def test_index(client):
     assert response.status_code == 200
 
 
+def test_index_handles_db_errors(client, monkeypatch):
+    import app.app as app_module
+
+    def fail_query(*args, **kwargs):
+        raise Exception("DB down")
+
+    monkeypatch.setattr(app_module.db.session, "query", fail_query)
+
+    response = client.get("/")
+    assert response.status_code == 200
+    body = response.get_data(as_text=True)
+    assert "Sorry! Something went wrong on our end" not in body
+    assert "The database currently holds  isolates from  patients." in body
+
+
 def test_isolates_page(client):
     response = client.get("/isolates")
     assert response.status_code == 200
