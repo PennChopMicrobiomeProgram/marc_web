@@ -12,12 +12,6 @@ COPY . .
 
 RUN pip install -r requirements.txt
 
-ENV FLASK_DEBUG=0
-ENV FLASK_APP=/app/app/app
-ENV SQLALCHEMY_ECHO=False
-ENV FLASK_RUN_HOST=0.0.0.0
-ENV FLASK_RUN_PORT=80
-
 EXPOSE 80
 
-CMD [ "flask", "run" ]
+CMD ["gunicorn", "--bind", "0.0.0.0:80", "--workers", "2", "--threads", "2", "--timeout", "120", "--max-requests", "1000", "--max-requests-jitter", "100", "--preload", "app.app:app"]
