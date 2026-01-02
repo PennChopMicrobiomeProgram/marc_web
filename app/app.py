@@ -92,10 +92,16 @@ def favicon():
 
 @app.route("/")
 def index():
-    isolate_count = db.session.query(func.count(Isolate.sample_id)).scalar()
-    patient_count = db.session.query(
-        func.count(func.distinct(Isolate.subject_id))
-    ).scalar()
+    try:
+        isolate_count = db.session.query(func.count(Isolate.sample_id)).scalar()
+        patient_count = db.session.query(
+            func.count(func.distinct(Isolate.subject_id))
+        ).scalar()
+    except Exception as e:
+        isolate_count = 0
+        patient_count = 0
+        print(f"Error fetching counts for index page: {e}")
+
     # Get counts of each unique special collection
     special_collections: dict[str, tuple[int, str]] = {}
     # Define description strings for known special collections
@@ -103,19 +109,23 @@ def index():
         "Bacteremia": "Bacteria suspected to cause bacteremia",
         "Surveillance": "Bacteria isolated from the nares of patients as part of surveillance",
     }
-    # Get counts of all special collections in a single query
-    collection_counts = (
-        db.session.query(Isolate.special_collection, func.count(Isolate.sample_id))
-        .filter(Isolate.special_collection.is_not(None))
-        .group_by(Isolate.special_collection)
-        .all()
-    )
 
-    # Build the dictionary with counts and descriptions
-    special_collections = {
-        collection: (count, special_collection_descriptions.get(collection, ""))
-        for collection, count in collection_counts
-    }
+    try:
+        # Get counts of all special collections in a single query
+        collection_counts = (
+            db.session.query(Isolate.special_collection, func.count(Isolate.sample_id))
+            .filter(Isolate.special_collection.is_not(None))
+            .group_by(Isolate.special_collection)
+            .all()
+        )
+
+        # Build the dictionary with counts and descriptions
+        special_collections = {
+            collection: (count, special_collection_descriptions.get(collection, ""))
+            for collection, count in collection_counts
+        }
+    except Exception as e:
+        print(f"Error fetching special collection counts: {e}")
 
     return render_template(
         "index.html",
