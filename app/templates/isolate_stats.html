@@ -1,0 +1,324 @@
+{% extends 'base.html' %}
+
+{% block head %}
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+{% endblock %}
+
+{% block body %}
+<div class="container-fluid mt-3">
+  <h2 class="mb-3">Isolate Stats</h2>
+  <div class="row g-4 mb-3">
+    <div class="col-lg-9">
+      <div class="row g-4">
+        <div class="col-lg-4 col-md-6">
+          <div class="card shadow-sm h-100">
+            <div class="card-body">
+              <h5 class="card-title">Contig Count</h5>
+              <canvas id="contigCountChart" height="250"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-4 col-md-6">
+          <div class="card shadow-sm h-100">
+            <div class="card-body">
+              <h5 class="card-title">Average Contig Coverage</h5>
+              <canvas id="avgCoverageChart" height="250"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-4 col-md-6">
+          <div class="card shadow-sm h-100">
+            <div class="card-body">
+              <h5 class="card-title">Genome Size</h5>
+              <canvas id="genomeSizeChart" height="250"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row g-4 mt-1">
+        <div class="col-12">
+          <div class="card shadow-sm h-100">
+            <div class="card-body">
+              <h5 class="card-title">Completeness vs Contamination</h5>
+              <div style="height: 230px">
+                <canvas id="contaminationCompletenessChart"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-3">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <h5 class="card-title">Suspected Organism</h5>
+          <ul id="speciesLegend" class="list-unstyled mb-0"></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+$(document).ready(function () {
+    const assemblyUrl = "{{ url_for('show_assembly', assembly_id=0)[:-1] }}";
+    const palette = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'];
+    const speciesKey = (metric) => metric.suspected_organism || 'Unknown';
+    const MAX_SPECIES = 4;
+
+    function isNumericValue(value) {
+        return typeof value === 'number' && !Number.isNaN(value);
+    }
+
+    function buildBinConfig(values, binCount = 10) {
+        const filtered = values.filter(isNumericValue);
+        if (filtered.length === 0) return null;
+
+        const min = Math.min(...filtered);
+        const max = Math.max(...filtered);
+        const binSize = (max - min) / binCount || 1;
+
+        const labels = Array.from({ length: binCount }, (_, i) =>
+            `${(min + i * binSize).toFixed(2)} - ${(min + (i + 1) * binSize).toFixed(2)}`
+        );
+
+        return { min, max, binSize, binCount, labels };
+    }
+
+    function binCounts(values, binConfig) {
+        if (!binConfig) return [];
+        const counts = new Array(binConfig.binCount).fill(0);
+        values.filter(isNumericValue).forEach((value) => {
+            const binIndex = binConfig.binSize === 0 ? 0 : Math.min(binConfig.binCount - 1, Math.floor((value - binConfig.min) / binConfig.binSize));
+            counts[binIndex] += 1;
+        });
+        return counts;
+    }
+
+    function hexToRgba(hex, alpha = 0.5) {
+        const sanitized = hex.replace('#', '');
+        const bigint = parseInt(sanitized, 16);
+        const r = (bigint >> 16) & 255;
+        const g = (bigint >> 8) & 255;
+        const b = bigint & 255;
+        return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+
+    function buildSpeciesGrouping(metrics) {
+        const counts = metrics.reduce((acc, metric) => {
+            const species = speciesKey(metric);
+            acc[species] = (acc[species] || 0) + 1;
+            return acc;
+        }, {});
+
+        const sortedSpecies = Object.entries(counts).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+        const topSpecies = sortedSpecies.slice(0, MAX_SPECIES).map(([name]) => name);
+        const hasOther = sortedSpecies.length > MAX_SPECIES;
+        const groups = hasOther ? [...topSpecies, 'Other'] : topSpecies;
+        const colorMap = new Map();
+        groups.forEach((group, idx) => colorMap.set(group, palette[idx % palette.length]));
+
+        const groupFor = (metric) => {
+            const species = speciesKey(metric);
+            if (topSpecies.includes(species)) {
+                return species;
+            }
+            return hasOther ? 'Other' : species;
+        };
+
+        return {
+            groups,
+            groupFor,
+            colorFor: (group) => colorMap.get(group) || '#7f7f7f',
+        };
+    }
+
+    function renderLegend(grouping) {
+        const legend = document.getElementById('speciesLegend');
+        if (!legend) return;
+
+        legend.innerHTML = '';
+        grouping.groups.forEach((group) => {
+            const item = document.createElement('li');
+            item.classList.add('d-flex', 'align-items-center', 'mb-2');
+
+            const swatch = document.createElement('span');
+            swatch.style.width = '16px';
+            swatch.style.height = '16px';
+            swatch.style.display = 'inline-block';
+            swatch.style.borderRadius = '4px';
+            swatch.style.backgroundColor = grouping.colorFor(group);
+            swatch.classList.add('me-2');
+
+            const label = document.createElement('span');
+            label.textContent = group;
+
+            item.appendChild(swatch);
+            item.appendChild(label);
+            legend.appendChild(item);
+        });
+    }
+
+    function renderHistogram(canvasId, metrics, valueSelector, xLabel, grouping) {
+        const context = document.getElementById(canvasId);
+        if (!context) {
+            return;
+        }
+
+        const allValues = metrics.map(valueSelector).filter(isNumericValue);
+        const binConfig = buildBinConfig(allValues);
+        if (!binConfig) {
+            return;
+        }
+
+        const datasets = grouping.groups
+            .map((group) => {
+                const values = metrics
+                    .filter((m) => grouping.groupFor(m) === group)
+                    .map(valueSelector)
+                    .filter(isNumericValue);
+                if (values.length === 0) return null;
+                const color = grouping.colorFor(group);
+                return {
+                    label: group,
+                    data: binCounts(values, binConfig),
+                    backgroundColor: hexToRgba(color, 0.5),
+                    borderColor: color,
+                    borderWidth: 1,
+                };
+            })
+            .filter(Boolean);
+
+        if (!datasets.length) {
+            return;
+        }
+
+        new Chart(context, {
+            type: 'bar',
+            data: {
+                labels: binConfig.labels,
+                datasets,
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false },
+                    title: { display: false },
+                },
+                scales: {
+                    x: {
+                        title: { display: true, text: xLabel },
+                        ticks: { maxRotation: 45, minRotation: 45 },
+                        stacked: true,
+                    },
+                    y: {
+                        title: { display: true, text: 'Assemblies' },
+                        beginAtZero: true,
+                        precision: 0,
+                        stacked: true,
+                    },
+                },
+            },
+        });
+    }
+
+    function renderScatter(metrics, grouping) {
+        const context = document.getElementById('contaminationCompletenessChart');
+        if (!context) {
+            return;
+        }
+
+        const datasets = grouping.groups
+            .map((group) => {
+                const points = metrics
+                    .filter(
+                        (m) => grouping.groupFor(m) === group && isNumericValue(m.contamination) && isNumericValue(m.completeness)
+                    )
+                    .map((m) => ({
+                        x: m.contamination,
+                        y: m.completeness,
+                        assemblyId: m.assembly_id,
+                    }));
+                if (!points.length) return null;
+                const color = grouping.colorFor(group);
+                return {
+                    label: group,
+                    data: points,
+                    backgroundColor: color,
+                };
+            })
+            .filter(Boolean);
+
+        if (!datasets.length) {
+            return;
+        }
+
+        new Chart(context, {
+            type: 'scatter',
+            data: { datasets },
+            options: {
+                parsing: false,
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: (context) => {
+                                const { x, y, assemblyId } = context.raw;
+                                return `Assembly ${assemblyId}: Contamination ${x}, Completeness ${y}`;
+                            },
+                        },
+                    },
+                    legend: { display: false },
+                },
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        title: { display: true, text: 'Contamination' },
+                    },
+                    y: {
+                        title: { display: true, text: 'Completeness' },
+                    },
+                },
+                onClick: (_event, elements) => {
+                    if (!elements.length) return;
+                    const { assemblyId } = elements[0].element.$context.raw;
+                    if (assemblyId) {
+                        window.location.href = `${assemblyUrl}${assemblyId}`;
+                    }
+                },
+            },
+        });
+    }
+
+    fetch('{{ url_for('api_assembly_metrics') }}')
+        .then((response) => response.json())
+        .then((payload) => payload.data || [])
+        .then((metrics) => {
+            const grouping = buildSpeciesGrouping(metrics);
+            if (!grouping.groups.length) return;
+            renderLegend(grouping);
+            renderHistogram(
+                'contigCountChart',
+                metrics,
+                (m) => m.contig_count,
+                'Contig Count (binned)',
+                grouping
+            );
+            renderHistogram(
+                'avgCoverageChart',
+                metrics,
+                (m) => m.avg_contig_coverage,
+                'Average Coverage (binned)',
+                grouping
+            );
+            renderHistogram(
+                'genomeSizeChart',
+                metrics,
+                (m) => m.genome_size,
+                'Genome Size (binned)',
+                grouping
+            );
+            renderScatter(metrics, grouping);
+        });
+});
+</script>
+{% endblock %}

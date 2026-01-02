@@ -92,10 +92,16 @@ def favicon():
 
 @app.route("/")
 def index():
-    isolate_count = db.session.query(func.count(Isolate.sample_id)).scalar()
-    patient_count = db.session.query(
-        func.count(func.distinct(Isolate.subject_id))
-    ).scalar()
+    try:
+        isolate_count = db.session.query(func.count(Isolate.sample_id)).scalar()
+        patient_count = db.session.query(
+            func.count(func.distinct(Isolate.subject_id))
+        ).scalar()
+    except Exception as e:
+        isolate_count = 0
+        patient_count = 0
+        print(f"Error fetching counts for index page: {e}")
+
     # Get counts of each unique special collection
     special_collections: dict[str, tuple[int, str]] = {}
     # Define description strings for known special collections
@@ -103,19 +109,23 @@ def index():
         "Bacteremia": "Bacteria suspected to cause bacteremia",
         "Surveillance": "Bacteria isolated from the nares of patients as part of surveillance",
     }
-    # Get counts of all special collections in a single query
-    collection_counts = (
-        db.session.query(Isolate.special_collection, func.count(Isolate.sample_id))
-        .filter(Isolate.special_collection.is_not(None))
-        .group_by(Isolate.special_collection)
-        .all()
-    )
 
-    # Build the dictionary with counts and descriptions
-    special_collections = {
-        collection: (count, special_collection_descriptions.get(collection, ""))
-        for collection, count in collection_counts
-    }
+    try:
+        # Get counts of all special collections in a single query
+        collection_counts = (
+            db.session.query(Isolate.special_collection, func.count(Isolate.sample_id))
+            .filter(Isolate.special_collection.is_not(None))
+            .group_by(Isolate.special_collection)
+            .all()
+        )
+
+        # Build the dictionary with counts and descriptions
+        special_collections = {
+            collection: (count, special_collection_descriptions.get(collection, ""))
+            for collection, count in collection_counts
+        }
+    except Exception as e:
+        print(f"Error fetching special collection counts: {e}")
 
     return render_template(
         "index.html",
@@ -133,6 +143,11 @@ def browse_isolates():
     return render_template("browse_isolates.html")
 
 
+@app.route("/isolate-stats")
+def isolate_stats():
+    return render_template("isolate_stats.html")
+
+
 @app.route("/api/isolates")
 def api_isolates():
     return datatables_response(select(Isolate))
@@ -140,10 +155,17 @@ def api_isolates():
 
 @app.route("/isolate/<isolate_id>")
 def show_isolate(isolate_id):
-    isolate = get_isolates(db.session, isolate_id)
-    if not isolate or isolate[0] is None:
+    isolate_records = get_isolates(db.session, isolate_id)
+    if not isolate_records or isolate_records[0] is None:
         return render_template("dne.html", isolate_id=isolate_id)
-    return render_template("show_isolate.html", isolate=isolate[0])
+    isolate = isolate_records[0]
+    assemblies = (
+        db.session.query(Assembly)
+        .filter(Assembly.isolate_id == isolate.sample_id)
+        .order_by(Assembly.id)
+        .all()
+    )
+    return render_template("show_isolate.html", isolate=isolate, assemblies=assemblies)
 
 
 @app.route("/aliquots")
@@ -171,7 +193,54 @@ def browse_assemblies():
 
 @app.route("/api/assemblies")
 def api_assemblies():
-    return datatables_response(select(Assembly))
+    query = select(
+        Assembly.id,
+        Assembly.isolate_id,
+        Assembly.metagenomic_sample_id,
+        Assembly.metagenomic_run_id,
+        Assembly.nanopore_path.isnot(None).label("nanopore"),
+        Assembly.run_number,
+        Assembly.sunbeam_version,
+        Assembly.sbx_sga_version,
+        Assembly.ncbi_id,
+    )
+    return datatables_response(query)
+
+
+@app.route("/api/assemblies/metrics")
+def api_assembly_metrics():
+    metrics = (
+        db.session.query(
+            Assembly.id.label("assembly_id"),
+            Assembly.isolate_id.label("isolate_id"),
+            AssemblyQC.contig_count,
+            AssemblyQC.avg_contig_coverage,
+            AssemblyQC.genome_size,
+            AssemblyQC.completeness,
+            AssemblyQC.contamination,
+            Isolate.suspected_organism,
+        )
+        .join(AssemblyQC, Assembly.id == AssemblyQC.assembly_id)
+        .outerjoin(Isolate, Assembly.isolate_id == Isolate.sample_id)
+        .order_by(Assembly.id)
+        .all()
+    )
+
+    return {
+        "data": [
+            {
+                "assembly_id": m.assembly_id,
+                "isolate_id": m.isolate_id,
+                "contig_count": m.contig_count,
+                "avg_contig_coverage": m.avg_contig_coverage,
+                "genome_size": m.genome_size,
+                "completeness": m.completeness,
+                "contamination": m.contamination,
+                "suspected_organism": m.suspected_organism,
+            }
+            for m in metrics
+        ]
+    }
 
 
 @app.route("/assembly_qc")
@@ -181,7 +250,25 @@ def browse_assembly_qc():
 
 @app.route("/api/assembly_qc")
 def api_assembly_qc():
-    return datatables_response(select(AssemblyQC))
+    query = (
+        select(
+            AssemblyQC.assembly_id,
+            Assembly.isolate_id.label("isolate_id"),
+            AssemblyQC.contig_count,
+            AssemblyQC.genome_size,
+            AssemblyQC.n50,
+            AssemblyQC.gc_content,
+            AssemblyQC.cds,
+            AssemblyQC.completeness,
+            AssemblyQC.contamination,
+            AssemblyQC.min_contig_coverage,
+            AssemblyQC.avg_contig_coverage,
+            AssemblyQC.max_contig_coverage,
+        )
+        .join(Assembly)
+        .order_by(AssemblyQC.assembly_id)
+    )
+    return datatables_response(query)
 
 
 @app.route("/assembly_qc/<int:assembly_id>")
@@ -209,7 +296,18 @@ def browse_taxonomic_assignments():
 
 @app.route("/api/taxonomic_assignments")
 def api_taxonomic_assignments():
-    return datatables_response(select(TaxonomicAssignment))
+    query = (
+        select(
+            TaxonomicAssignment.assembly_id,
+            Assembly.isolate_id.label("isolate_id"),
+            TaxonomicAssignment.tool,
+            TaxonomicAssignment.classification,
+            TaxonomicAssignment.comment,
+        )
+        .join(Assembly)
+        .order_by(TaxonomicAssignment.assembly_id)
+    )
+    return datatables_response(query)
 
 
 @app.route("/taxonomic_assignments/<int:assembly_id>")
@@ -236,7 +334,22 @@ def browse_antimicrobials():
 
 @app.route("/api/antimicrobials")
 def api_antimicrobials():
-    return datatables_response(select(Antimicrobial))
+    query = (
+        select(
+            Antimicrobial.id,
+            Antimicrobial.assembly_id,
+            Assembly.isolate_id.label("isolate_id"),
+            Antimicrobial.contig_id,
+            Antimicrobial.gene_symbol,
+            Antimicrobial.gene_name,
+            Antimicrobial.accession,
+            Antimicrobial.element_type,
+            Antimicrobial.resistance_product,
+        )
+        .join(Assembly)
+        .order_by(Antimicrobial.id)
+    )
+    return datatables_response(query)
 
 
 @app.route("/antimicrobial/<int:antimicrobial_id>")
@@ -263,17 +376,19 @@ def show_assembly(assembly_id: int):
     if not assemblies or assemblies[0] is None:
         return render_template("dne.html", assembly_id=assembly_id)
     assembly = assemblies[0]
-    qc = assembly.assembly_qcs
-    assignment = (
-        assembly.taxonomic_assignments[0] if assembly.taxonomic_assignments else None
+    qc = assembly.assembly_qc
+    assignments = (
+        list(assembly.taxonomic_assignments) if assembly.taxonomic_assignments else []
     )
     antimicrobials = list(assembly.antimicrobials) if assembly.antimicrobials else []
+    contaminants = list(assembly.contaminants) if assembly.contaminants else []
     return render_template(
         "show_assembly.html",
         assembly=assembly,
         qc=qc,
-        assignment=assignment,
+        assignments=assignments,
         antimicrobials=antimicrobials,
+        contaminants=contaminants,
     )
 
 

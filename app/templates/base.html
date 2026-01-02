@@ -7,9 +7,13 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.2/dist/minty/bootstrap.min.css">
   <!-- Bootstrap icons -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link
+    rel="preload"
+    as="font"
+    href="https://www.research.chop.edu/themes/custom/chopresearch/fonts/rubrik-regular-webfont.woff2"
+    type="font/woff2"
+    crossorigin
+  >
   <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
@@ -18,10 +22,16 @@
   <script src="{{ url_for('static', filename='table.js') }}"></script>
   {% block head %}{% endblock %}
 </head>
-<body class="container-fluid{% if is_dev_site %} has-dev-banner{% endif %}">
+<body class="d-flex flex-column container-fluid px-0{% if is_dev_site %} has-dev-banner{% endif %}" style="min-height: 100vh;">
   <nav class="navbar navbar-expand-lg navbar-light fixed-top">
     <div class="container-fluid">
-      <a class="navbar-brand" href="{{ url_for('index') }}">microbialARC</a>
+      <a class="navbar-brand" href="{{ url_for('index') }}">
+        <img
+          src="{{ url_for('static', filename='CHOP_Center_for_Microbial_Medicine.jpg') }}"
+          class="chop-banner"
+          alt="Center for Microbial Medicine banner"
+        >
+      </a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu" aria-controls="navMenu" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
@@ -32,6 +42,9 @@
           </li>
           <li class="nav-item">
             <a class="nav-link" href="{{ url_for('browse_isolates') }}"><i class="bi bi-bug-fill"></i> Isolates</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('isolate_stats') }}"><i class="bi bi-bar-chart-line-fill"></i> Isolate Stats</a>
           </li>
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="assemblyDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -72,6 +85,30 @@
     });
   </script>
 
+  <main class="flex-grow-1 px-2">
   {% block body %}{% endblock %}
+  </main>
+
+  <footer class="mt-auto py-4 bg-light border-top">
+    <div class="row mx-3">
+      <div class="col-md-8">
+        <h6 class="mb-2"><i class="bi bi-question-circle-fill me-2"></i>Need Help?</h6>
+        <p class="mb-1 small">
+          Found a bug or have questions about the data? We'd love to help!
+        </p>
+        <p class="mb-0 small">
+          <i class="bi bi-envelope-fill me-1"></i>
+          Contact us at: <a href="mailto:moustafaam@chop.edu">moustafaam@chop.edu</a>
+        </p>
+      </div>
+      <div class="col-md-4 text-md-end">
+        <p class="mb-0 small text-muted">
+          <i class="bi bi-building me-1"></i>
+          Children's Hospital of Philadelphia<br>
+          Center for Microbial Medicine
+        </p>
+      </div>
+    </div>
+  </footer>
 </body>
 </html>

@@ -18,26 +18,14 @@
         <a href="{{ url_for('show_isolate', isolate_id=isolate_id) }}">{{ isolate_id }}</a>
       </p>
       <dl class="row mb-0">
-        <dt class="col-sm-4">Taxonomic Classification</dt>
-        <dd class="col-sm-8">{{ assignment.taxonomic_classification or '—' }}</dd>
+        <dt class="col-sm-4">Tool</dt>
+        <dd class="col-sm-8">{{ assignment.tool or '—' }}</dd>
 
-        <dt class="col-sm-4">Taxonomic Abundance</dt>
-        <dd class="col-sm-8">{{ assignment.taxonomic_abundance or '—' }}</dd>
+        <dt class="col-sm-4">Classification</dt>
+        <dd class="col-sm-8">{{ assignment.classification or '—' }}</dd>
 
-        <dt class="col-sm-4">Mash Contamination</dt>
-        <dd class="col-sm-8">{{ assignment.mash_contamination or '—' }}</dd>
-
-        <dt class="col-sm-4">Mash Contaminated Species</dt>
-        <dd class="col-sm-8">{{ assignment.mash_contaminated_spp or '—' }}</dd>
-
-        <dt class="col-sm-4">Sequence Type (ST)</dt>
-        <dd class="col-sm-8">{{ assignment.st or '—' }}</dd>
-
-        <dt class="col-sm-4">ST Schema</dt>
-        <dd class="col-sm-8">{{ assignment.st_schema or '—' }}</dd>
-
-        <dt class="col-sm-4">Allele Assignment</dt>
-        <dd class="col-sm-8">{{ assignment.allele_assignment or '—' }}</dd>
+        <dt class="col-sm-4">Comment</dt>
+        <dd class="col-sm-8">{{ assignment.comment or '—' }}</dd>
       </dl>
     </div>
   </div>

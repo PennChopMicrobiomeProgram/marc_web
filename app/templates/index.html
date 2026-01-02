@@ -1,50 +1,29 @@
 {% extends 'base.html' %}
 
-{% block head %}
-<style>
-  .chop-banner-row {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 1.5rem;
-    flex-wrap: nowrap;
-    width: 100%;
-  }
-
-  .chop-banner {
-    flex: 0 1 clamp(220px, 40vw, 420px);
-    width: auto;
-    max-width: min(100%, 40vw);
-    height: clamp(120px, 18vw, 220px);
-    object-fit: contain;
-    border-radius: 0.5rem;
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-  }
-
-  @media (max-width: 576px) {
-    .chop-banner-row {
-      gap: 1rem;
-    }
-  }
-</style>
-{% endblock %}
-
 {% block body %}
+<!--<div class="header-banner" role="presentation">
+  <img
+    src="{{ url_for('static', filename='blue_green.png') }}"
+    class="header-banner-image"
+    alt=""
+  >
+</div>-->
+
 <div class="container py-5">
-  <h3 class="mb-3 text-center">Welcome to the Microbial ARchive and Cryo-collection!</h3>
-  <p>
-    The microbial ARchive and Cryo-collection (microbialARC) at the Children’s Hospital of Philadelphia is a
-    biorepository and research platform dedicated to preserving and studying both pathogenic and commensal microorganisms. We are building a meticulously curated strain library that advances the field of microbial genomics by integrating advanced cryo-preservation with genomic and phenotypic characterization.
-  </p>
-  <p>
+  <div class="container blue-card">
+    <h3 style="text-transform:none;">Welcome to the Microbial ARchive and Cryo-collection!</h3>
+    <!--<img src="{{ url_for('static', filename='smiling_nurse.jpg') }}" alt="Welcome to the Microbial ARchive and Cryo-collection!" title="Welcome to the Microbial ARchive and Cryo-collection!" class="blue-card-image">-->
+    <div class="blue-card-content">The microbial ARchive and Cryo-collection (microbialARC) at the Children’s Hospital of Philadelphia is a biorepository and research platform dedicated to preserving and studying both pathogenic and commensal microorganisms. We are building a meticulously curated strain library that advances the field of microbial genomics by integrating advanced cryo-preservation with genomic and phenotypic characterization.
+      
     We collaborate closely with clinicians and basic researchers to collect, culture, and sequence microorganisms that shape human health and disease. Through the systematic preservation and genomic characterization of these isolates, microbialARC supports precision surveillance for infection prevention, outbreak response, and mechanistic studies of the microbiome.
-  </p>
-  <p>
+    
     Our mission is to transform microbial collections into a dynamic resource for discovery—bridging clinical microbiology, genomics, and bioinformatics to accelerate the development of innovative live biotherapeutics and next-generation tools for understanding microbial evolution and antibiotic resistance. By linking clinical, environmental, and genomic data, microbialARC empowers precision medicine and global health initiatives aimed at improving outcomes for children and communities worldwide.
-  </p>
-  <p>
+    </div>
+  </div>
+
+  <h4>
     The database currently holds {{ isolate_count }} isolates from {{ patient_count }} patients.
-  </p>
+  </h4>
 
   <p>The efforts to curate the isolates include:</p>
   <ul class="list-unstyled">
@@ -52,19 +31,6 @@
     <li class="mb-2"><strong>{{ collection }}</strong> ({{ val[0] }} isolates){% if val[1] %} - {{ val[1] }}{% endif %}</li>
     {% endfor %}
   </ul>
-
-  <div class="chop-banner-row mt-5">
-    <img
-      src="{{ url_for('static', filename='CHOP_Center_for_Microbial_Medicine.jpg') }}"
-      class="chop-banner"
-      alt="Center for Microbial Medicine banner"
-    >
-    <img
-      src="{{ url_for('static', filename='CHOP_Microbiome_Center.jpg') }}"
-      class="chop-banner"
-      alt="CHOP Microbiome Center banner"
-    >
-  </div>
 </div>
 
 <div>

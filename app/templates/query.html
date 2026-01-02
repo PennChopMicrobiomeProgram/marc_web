@@ -16,20 +16,20 @@
   <div class="row">
     <div class="col-md-4 p-2">
       <form id="query-form" class="d-flex flex-column w-100" method="POST" action="{{ url_for('query') }}">
-        <label class="p-2">
+        <label class="form-label p-2">
           Custom Query
           <i class="bi bi-question-circle" tabindex="0" data-bs-toggle="popover"
              data-bs-content="Use your own SQL to query the database directly. Don't worry about query size, the data will be paginated automatically!"></i>
         </label>
         <input type="hidden" id="query-input" name="query" value="{{ query }}">
         <div id="query-editor" class="w-100 border" style="height: 300px;"></div>
-        <button type="submit" id="submit" class="btn btn-primary mt-2">Submit</button>
+        <button type="submit" id="submit" class="btn btn-primary mt-4">Submit</button>
       </form>
     </div>
 
     <div class="col-md-4 p-2">
-      <form id="nl-query-form" class="d-flex flex-column" method="POST" action="{{ url_for('api_nl_query') }}">
-        <label for="prompt" class="form-label">
+      <form id="nl-query-form" class="d-flex flex-column w-100" method="POST" action="{{ url_for('api_nl_query') }}">
+        <label for="prompt" class="form-label p-2">
           Natural Language Query
           <i class="bi bi-question-circle" tabindex="0" data-bs-toggle="popover"
              data-bs-content="Ask a question about the data. The system will generate an SQL query to answer it."></i>
@@ -42,7 +42,7 @@
 
     <div class="col-md-4 p-2">
       <div class="d-flex flex-column">
-        <label for="model-select" class="form-label">
+        <label for="model-select" class="form-label p-2">
           Model Reference
           <i class="bi bi-question-circle" tabindex="0" data-bs-toggle="popover"
              data-bs-content="Select a model to view its fields. Use these field names to build custom SQL queries."></i>

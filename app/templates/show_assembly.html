@@ -28,6 +28,9 @@
         <dt class="col-sm-4">Metagenomic Run ID</dt>
         <dd class="col-sm-8">{{ assembly.metagenomic_run_id or '—' }}</dd>
 
+        <dt class="col-sm-4">Nanopore Path</dt>
+        <dd class="col-sm-8">{{ assembly.nanopore_path or '—' }}</dd>
+
         <dt class="col-sm-4">Run Number</dt>
         <dd class="col-sm-8">{{ assembly.run_number or '—' }}</dd>
 
@@ -37,11 +40,11 @@
         <dt class="col-sm-4">SBX SGA Version</dt>
         <dd class="col-sm-8">{{ assembly.sbx_sga_version or '—' }}</dd>
 
-        <dt class="col-sm-4">Config File</dt>
-        <dd class="col-sm-8">{{ assembly.config_file or '—' }}</dd>
-
         <dt class="col-sm-4">Sunbeam Output Path</dt>
         <dd class="col-sm-8">{{ assembly.sunbeam_output_path or '—' }}</dd>
+
+        <dt class="col-sm-4">NCBI ID</dt>
+        <dd class="col-sm-8">{{ assembly.ncbi_id or '—' }}</dd>
       </dl>
     </div>
   </div>
@@ -51,11 +54,6 @@
       <div class="card h-100 shadow-sm">
         <div class="card-header d-flex justify-content-between align-items-center">
           <h3 class="h5 mb-0">Assembly QC</h3>
-          {% if qc %}
-          <a class="btn btn-sm btn-outline-primary" href="{{ url_for('show_assembly_qc', assembly_id=assembly.id) }}">
-            View QC Details
-          </a>
-          {% endif %}
         </div>
         <div class="card-body">
           {% if qc %}
@@ -80,6 +78,15 @@
 
             <dt class="col-sm-5">Contamination</dt>
             <dd class="col-sm-7">{{ qc.contamination or '—' }}</dd>
+
+            <dt class="col-sm-5">Min Contig Coverage</dt>
+            <dd class="col-sm-7">{{ qc.min_contig_coverage or '—' }}</dd>
+
+            <dt class="col-sm-5">Avg Contig Coverage</dt>
+            <dd class="col-sm-7">{{ qc.avg_contig_coverage or '—' }}</dd>
+
+            <dt class="col-sm-5">Max Contig Coverage</dt>
+            <dd class="col-sm-7">{{ qc.max_contig_coverage or '—' }}</dd>
           </dl>
           {% else %}
           <p class="text-muted mb-0">No QC metrics recorded for this assembly.</p>
@@ -91,33 +98,35 @@
     <div class="col-lg-6">
       <div class="card h-100 shadow-sm">
         <div class="card-header d-flex justify-content-between align-items-center">
-          <h3 class="h5 mb-0">Taxonomic Assignment</h3>
-          {% if assignment %}
-          <a class="btn btn-sm btn-outline-primary" href="{{ url_for('show_taxonomic_assignment', assembly_id=assembly.id) }}">
-            View Assignment
-          </a>
+          <h3 class="h5 mb-0">Taxonomic Assignments</h3>
+          {% if assignments %}
+          <span class="badge bg-primary">{{ assignments|length }}</span>
           {% endif %}
         </div>
         <div class="card-body">
-          {% if assignment %}
-          <dl class="row mb-0">
-            <dt class="col-sm-5">Classification</dt>
-            <dd class="col-sm-7">{{ assignment.taxonomic_classification or '—' }}</dd>
-
-            <dt class="col-sm-5">Abundance</dt>
-            <dd class="col-sm-7">{{ assignment.taxonomic_abundance or '—' }}</dd>
-
-            <dt class="col-sm-5">ST</dt>
-            <dd class="col-sm-7">{{ assignment.st or '—' }}</dd>
-
-            <dt class="col-sm-5">ST Schema</dt>
-            <dd class="col-sm-7">{{ assignment.st_schema or '—' }}</dd>
-
-            <dt class="col-sm-5">Allele Assignment</dt>
-            <dd class="col-sm-7">{{ assignment.allele_assignment or '—' }}</dd>
-          </dl>
+          {% if assignments %}
+          <div class="table-responsive">
+            <table class="table table-striped mb-0">
+              <thead>
+                <tr>
+                  <th scope="col">Classification</th>
+                  <th scope="col">Comment</th>
+                  <th scope="col">Tool</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for assignment in assignments %}
+                <tr>
+                  <td>{{ assignment.classification or '—' }}</td>
+                  <td>{{ assignment.comment or '—' }}</td>
+                  <td>{{ assignment.tool or '—' }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
           {% else %}
-          <p class="text-muted mb-0">No taxonomic assignment has been recorded.</p>
+          <p class="text-muted mb-0">No taxonomic assignments recorded for this assembly.</p>
           {% endif %}
         </div>
       </div>
@@ -163,6 +172,43 @@
       </div>
       {% else %}
       <p class="text-muted mb-0">No antimicrobial markers recorded for this assembly.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="card shadow-sm mt-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h3 class="h5 mb-0">Contaminants</h3>
+      {% if contaminants %}
+      <span class="badge bg-primary">{{ contaminants|length }}</span>
+      {% endif %}
+    </div>
+    <div class="card-body">
+      {% if contaminants %}
+      <div class="table-responsive">
+        <table class="table table-striped mb-0">
+          <thead>
+            <tr>
+              <th scope="col">ID</th>
+              <th scope="col">Tool</th>
+              <th scope="col">Confidence</th>
+              <th scope="col">Classification</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for contaminant in contaminants %}
+            <tr>
+              <td>{{ contaminant.id }}</td>
+              <td>{{ contaminant.tool or '—' }}</td>
+              <td>{{ contaminant.confidence or '—' }}</td>
+              <td>{{ contaminant.classification or '—' }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <p class="text-muted mb-0">No contaminants reported for this assembly.</p>
       {% endif %}
     </div>
   </div>

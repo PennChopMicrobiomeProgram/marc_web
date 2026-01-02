@@ -12,11 +12,9 @@
         <tr>
           <th>Assembly ID</th>
           <th>Isolate ID</th>
-          <th>Taxonomic Classification</th>
-          <th>Taxonomic Abundance</th>
-          <th>ST</th>
-          <th>ST Schema</th>
-          <th>Allele Assignment</th>
+          <th>Tool</th>
+          <th>Classification</th>
+          <th>Comment</th>
         </tr>
       </thead>
       <tbody></tbody>
@@ -30,11 +28,9 @@ $(document).ready(function () {
     const oTable = createServerDataTable('#taxonomic_assignments', '{{ url_for('api_taxonomic_assignments') }}', [
         { data: 'assembly_id', render: function(d) { return '<a href="' + assignmentUrl + d + '">' + d + '</a>'; } },
         { data: 'isolate_id' },
-        { data: 'taxonomic_classification' },
-        { data: 'taxonomic_abundance' },
-        { data: 'st' },
-        { data: 'st_schema' },
-        { data: 'allele_assignment' }
+        { data: 'tool' },
+        { data: 'classification' },
+        { data: 'comment' },
     ]);
 
     $('#taxonomic_assignments_filter').appendTo('#taxonomic_assignments_summary');
