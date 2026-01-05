@@ -81,7 +81,6 @@ MARC_MODEL_FIELDS = {
 }
 
 with app.app_context():
-    db.create_all()
     init_app(db)
 
 
