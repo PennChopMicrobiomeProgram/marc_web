@@ -14,4 +14,4 @@ RUN pip install -r requirements.txt
 
 EXPOSE 80
 
-CMD ["gunicorn", "--bind", "0.0.0.0:80", "--workers", "2", "--threads", "2", "--timeout", "120", "--max-requests", "1000", "--max-requests-jitter", "100", "--preload", "app.app:app"]
+CMD ["gunicorn", "--bind", "0.0.0.0:80", "--workers", "4", "--threads", "1", "--timeout", "120", "--max-requests", "1000", "--max-requests-jitter", "100", "--preload", "app.app:app"]

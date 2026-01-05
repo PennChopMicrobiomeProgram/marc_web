@@ -56,7 +56,11 @@ app.config["SQLALCHEMY_DATABASE_URI"] = SQLALCHEMY_DATABASE_URI
 print(SQLALCHEMY_DATABASE_URI)
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
     "poolclass": NullPool,
-    "connect_args": {"check_same_thread": False},
+    "connect_args": {
+        "uri": True,
+        "check_same_thread": False,
+        "timeout": 30,
+    },
 }
 db = SQLAlchemy(model_class=Base)
 db.init_app(app)
