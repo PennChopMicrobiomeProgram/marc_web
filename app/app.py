@@ -212,6 +212,9 @@ def api_assemblies():
 
 @app.route("/api/assemblies/metrics")
 def api_assembly_metrics():
+    suspected_organism = func.nullif(func.trim(Isolate.suspected_organism), "").label(
+        "suspected_organism"
+    )
     metrics = (
         db.session.query(
             Assembly.id.label("assembly_id"),
@@ -221,10 +224,12 @@ def api_assembly_metrics():
             AssemblyQC.genome_size,
             AssemblyQC.completeness,
             AssemblyQC.contamination,
-            Isolate.suspected_organism,
+            suspected_organism,
         )
         .join(AssemblyQC, Assembly.id == AssemblyQC.assembly_id)
-        .outerjoin(Isolate, Assembly.isolate_id == Isolate.sample_id)
+        .outerjoin(
+            Isolate, func.trim(Assembly.isolate_id) == func.trim(Isolate.sample_id)
+        )
         .order_by(Assembly.id)
         .all()
     )
