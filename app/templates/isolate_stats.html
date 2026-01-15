@@ -2,6 +2,28 @@
 
 {% block head %}
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    .legend-scroll {
+      max-height: 420px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding-right: 4px;
+    }
+
+    .legend-item {
+      align-items: flex-start;
+    }
+
+    .legend-swatch {
+      flex: 0 0 auto;
+      margin-top: 2px;
+    }
+
+    .legend-label {
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+  </style>
 {% endblock %}
 
 {% block body %}
@@ -39,7 +61,7 @@
         <div class="col-12">
           <div class="card shadow-sm h-100">
             <div class="card-body">
-              <h5 class="card-title">Completeness vs Contamination</h5>
+              <h5 class="card-title">Completeness vs Contamination (log scale)</h5>
               <div style="height: 230px">
                 <canvas id="contaminationCompletenessChart"></canvas>
               </div>
@@ -52,7 +74,9 @@
       <div class="card shadow-sm h-100">
         <div class="card-body">
           <h5 class="card-title">Suspected Organism</h5>
-          <ul id="speciesLegend" class="list-unstyled mb-0"></ul>
+          <div class="legend-scroll">
+            <ul id="speciesLegend" class="list-unstyled mb-0"></ul>
+          </div>
         </div>
       </div>
     </div>
@@ -70,6 +94,15 @@ $(document).ready(function () {
         return typeof value === 'number' && !Number.isNaN(value);
     }
 
+    const binRangeFormatter = new Intl.NumberFormat(undefined, {
+        maximumSignificantDigits: 4,
+    });
+
+    function formatBinValue(value) {
+        if (!isNumericValue(value)) return '';
+        return binRangeFormatter.format(value);
+    }
+
     function buildBinConfig(values, binCount = 10) {
         const filtered = values.filter(isNumericValue);
         if (filtered.length === 0) return null;
@@ -78,9 +111,11 @@ $(document).ready(function () {
         const max = Math.max(...filtered);
         const binSize = (max - min) / binCount || 1;
 
-        const labels = Array.from({ length: binCount }, (_, i) =>
-            `${(min + i * binSize).toFixed(2)} - ${(min + (i + 1) * binSize).toFixed(2)}`
-        );
+        const labels = Array.from({ length: binCount }, (_, i) => {
+            const start = min + i * binSize;
+            const end = min + (i + 1) * binSize;
+            return `${formatBinValue(start)} - ${formatBinValue(end)}`;
+        });
 
         return { min, max, binSize, binCount, labels };
     }
@@ -140,7 +175,7 @@ $(document).ready(function () {
         legend.innerHTML = '';
         grouping.groups.forEach((group) => {
             const item = document.createElement('li');
-            item.classList.add('d-flex', 'align-items-center', 'mb-2');
+            item.classList.add('d-flex', 'legend-item', 'mb-2');
 
             const swatch = document.createElement('span');
             swatch.style.width = '16px';
@@ -148,10 +183,11 @@ $(document).ready(function () {
             swatch.style.display = 'inline-block';
             swatch.style.borderRadius = '4px';
             swatch.style.backgroundColor = grouping.colorFor(group);
-            swatch.classList.add('me-2');
+            swatch.classList.add('me-2', 'legend-swatch');
 
             const label = document.createElement('span');
             label.textContent = group;
+            label.classList.add('legend-label');
 
             item.appendChild(swatch);
             item.appendChild(label);
@@ -235,9 +271,11 @@ $(document).ready(function () {
                         (m) => grouping.groupFor(m) === group && isNumericValue(m.contamination) && isNumericValue(m.completeness)
                     )
                     .map((m) => ({
-                        x: m.contamination,
-                        y: m.completeness,
+                        x: m.contamination > 0 ? m.contamination : 0.01,
+                        y: m.completeness > 0 ? m.completeness : 0.01,
                         assemblyId: m.assembly_id,
+                        rawContamination: m.contamination,
+                        rawCompleteness: m.completeness,
                     }));
                 if (!points.length) return null;
                 const color = grouping.colorFor(group);
@@ -262,8 +300,8 @@ $(document).ready(function () {
                     tooltip: {
                         callbacks: {
                             label: (context) => {
-                                const { x, y, assemblyId } = context.raw;
-                                return `Assembly ${assemblyId}: Contamination ${x}, Completeness ${y}`;
+                                const { rawContamination, rawCompleteness, assemblyId } = context.raw;
+                                return `Assembly ${assemblyId}: Contamination ${formatBinValue(rawContamination)}, Completeness ${formatBinValue(rawCompleteness)}`;
                             },
                         },
                     },
@@ -272,10 +310,14 @@ $(document).ready(function () {
                 maintainAspectRatio: false,
                 scales: {
                     x: {
-                        title: { display: true, text: 'Contamination' },
+                        type: 'logarithmic',
+                        title: { display: true, text: 'Contamination (log scale)' },
+                        min: 0.01,
                     },
                     y: {
-                        title: { display: true, text: 'Completeness' },
+                        type: 'logarithmic',
+                        title: { display: true, text: 'Completeness (log scale)' },
+                        min: 0.01,
                     },
                 },
                 onClick: (_event, elements) => {
