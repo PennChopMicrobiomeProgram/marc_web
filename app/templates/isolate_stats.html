@@ -61,7 +61,7 @@
         <div class="col-12">
           <div class="card shadow-sm h-100">
             <div class="card-body">
-              <h5 class="card-title">Completeness vs Contamination (log scale, inverted completeness)</h5>
+              <h5 class="card-title">Completeness vs Contamination</h5>
               <div style="height: 230px">
                 <canvas id="contaminationCompletenessChart"></canvas>
               </div>
@@ -97,22 +97,9 @@ $(document).ready(function () {
     const binRangeFormatter = new Intl.NumberFormat(undefined, {
         maximumSignificantDigits: 4,
     });
-    const COMPLETENESS_MAX = 100;
-    const COMPLETENESS_FLOOR = 0.01;
-
     function formatBinValue(value) {
         if (!isNumericValue(value)) return '';
         return binRangeFormatter.format(value);
-    }
-
-    function invertCompleteness(value) {
-        if (!isNumericValue(value)) return null;
-        return Math.max(COMPLETENESS_FLOOR, COMPLETENESS_MAX + COMPLETENESS_FLOOR - value);
-    }
-
-    function restoreCompleteness(value) {
-        if (!isNumericValue(value)) return null;
-        return COMPLETENESS_MAX + COMPLETENESS_FLOOR - value;
     }
 
     function buildBinConfig(values, binCount = 10) {
@@ -284,7 +271,7 @@ $(document).ready(function () {
                     )
                     .map((m) => ({
                         x: m.contamination > 0 ? m.contamination : 0.01,
-                        y: invertCompleteness(m.completeness),
+                        y: m.completeness,
                         assemblyId: m.assembly_id,
                         rawContamination: m.contamination,
                         rawCompleteness: m.completeness,
@@ -327,12 +314,8 @@ $(document).ready(function () {
                         min: 0.01,
                     },
                     y: {
-                        type: 'logarithmic',
-                        title: { display: true, text: 'Completeness (inverse log scale)' },
-                        min: COMPLETENESS_FLOOR,
-                        ticks: {
-                            callback: (value) => formatBinValue(restoreCompleteness(Number(value))),
-                        },
+                        title: { display: true, text: 'Completeness' },
+                        beginAtZero: true,
                     },
                 },
                 onClick: (_event, elements) => {
