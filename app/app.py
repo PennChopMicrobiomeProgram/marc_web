@@ -222,12 +222,16 @@ def api_assembly_metrics():
             AssemblyQC.completeness,
             AssemblyQC.contamination,
             Isolate.suspected_organism,
+            TaxonomicAssignment.classification,
+            TaxonomicAssignment.tool,
         )
         .join(AssemblyQC, Assembly.id == AssemblyQC.assembly_id)
+        .join(TaxonomicAssignment, Assembly.id == TaxonomicAssignment.assembly_id)
         .outerjoin(Isolate, Assembly.isolate_id == Isolate.sample_id)
         .order_by(Assembly.id)
         .all()
     )
+    print(metrics[0])
 
     return {
         "data": [
@@ -239,9 +243,10 @@ def api_assembly_metrics():
                 "genome_size": m.genome_size,
                 "completeness": m.completeness,
                 "contamination": m.contamination,
-                "suspected_organism": m.suspected_organism,
+                "suspected_organism": m.classification,
             }
             for m in metrics
+            if m.tool == "sylph"
         ]
     }
 
