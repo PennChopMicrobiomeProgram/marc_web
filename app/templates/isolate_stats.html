@@ -2,7 +2,6 @@
 
 {% block head %}
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.umd.min.js"></script>
   <style>
     .legend-scroll {
       max-height: 420px;
@@ -62,20 +61,7 @@
         <div class="col-12">
           <div class="card shadow-sm h-100">
             <div class="card-body">
-              <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
-                <h5 class="card-title mb-0">Completeness vs Contamination</h5>
-                <div class="btn-group btn-group-sm" role="group" aria-label="Zoom controls">
-                  <button id="contaminationCompletenessZoomIn" type="button" class="btn btn-outline-secondary" title="Zoom in">
-                    <i class="bi bi-zoom-in"></i>
-                  </button>
-                  <button id="contaminationCompletenessZoomOut" type="button" class="btn btn-outline-secondary" title="Zoom out">
-                    <i class="bi bi-zoom-out"></i>
-                  </button>
-                  <button id="contaminationCompletenessResetZoom" type="button" class="btn btn-outline-secondary" title="Reset zoom">
-                    <i class="bi bi-aspect-ratio"></i>
-                  </button>
-                </div>
-              </div>
+              <h5 class="card-title">Completeness vs Contamination</h5>
               <div style="height: 230px">
                 <canvas id="contaminationCompletenessChart"></canvas>
               </div>
@@ -100,16 +86,6 @@
 <script type="text/javascript">
 $(document).ready(function () {
     const assemblyUrl = "{{ url_for('show_assembly', assembly_id=0)[:-1] }}";
-    const zoomPlugin =
-        window.ChartZoom?.Zoom ||
-        window.ChartZoom?.default ||
-        window.ChartZoom ||
-        window.zoomPlugin ||
-        window.chartjsPluginZoom ||
-        window.Zoom;
-    if (window.Chart && zoomPlugin) {
-        Chart.register(zoomPlugin);
-    }
     const palette = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'];
     const speciesKey = (metric) => metric.suspected_organism || 'Unknown';
     const MAX_SPECIES = 4;
@@ -281,45 +257,11 @@ $(document).ready(function () {
         });
     }
 
-    let contaminationCompletenessChart = null;
-
-    function attachZoomControls() {
-        const zoomInButton = document.getElementById('contaminationCompletenessZoomIn');
-        const zoomOutButton = document.getElementById('contaminationCompletenessZoomOut');
-        const resetZoomButton = document.getElementById('contaminationCompletenessResetZoom');
-
-        if (!zoomInButton || !zoomOutButton || !resetZoomButton) {
-            return;
-        }
-
-        const hasZoom = contaminationCompletenessChart && typeof contaminationCompletenessChart.zoom === 'function';
-        zoomInButton.disabled = !hasZoom;
-        zoomOutButton.disabled = !hasZoom;
-        resetZoomButton.disabled = !hasZoom;
-
-        zoomInButton.addEventListener('click', () => {
-            if (contaminationCompletenessChart) {
-                contaminationCompletenessChart.zoom(1.2);
-            }
-        });
-        zoomOutButton.addEventListener('click', () => {
-            if (contaminationCompletenessChart) {
-                contaminationCompletenessChart.zoom(0.8);
-            }
-        });
-        resetZoomButton.addEventListener('click', () => {
-            if (contaminationCompletenessChart) {
-                contaminationCompletenessChart.resetZoom();
-            }
-        });
-    }
-
     function renderScatter(metrics, grouping) {
         const context = document.getElementById('contaminationCompletenessChart');
         if (!context) {
             return;
         }
-        context.style.touchAction = 'none';
 
         const datasets = grouping.groups
             .map((group) => {
@@ -348,11 +290,9 @@ $(document).ready(function () {
             return;
         }
 
-        const chartPlugins = zoomPlugin ? [zoomPlugin] : [];
-        contaminationCompletenessChart = new Chart(context, {
+        new Chart(context, {
             type: 'scatter',
             data: { datasets },
-            plugins: chartPlugins,
             options: {
                 parsing: false,
                 interaction: {
@@ -366,24 +306,6 @@ $(document).ready(function () {
                                 const { rawContamination, rawCompleteness, assemblyId } = context.raw;
                                 return `Assembly ${assemblyId}: Contamination ${formatBinValue(rawContamination)}, Completeness ${formatBinValue(rawCompleteness)}`;
                             },
-                        },
-                    },
-                    zoom: {
-                        pan: {
-                            enabled: true,
-                            mode: 'xy',
-                        },
-                        zoom: {
-                            wheel: {
-                                enabled: true,
-                            },
-                            pinch: {
-                                enabled: true,
-                            },
-                            drag: {
-                                enabled: true,
-                            },
-                            mode: 'xy',
                         },
                     },
                     legend: { display: false },
@@ -409,8 +331,6 @@ $(document).ready(function () {
                 },
             },
         });
-
-        attachZoomControls();
     }
 
     fetch('{{ url_for('api_assembly_metrics') }}')
