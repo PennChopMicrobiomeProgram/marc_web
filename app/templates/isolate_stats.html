@@ -2,7 +2,6 @@
 
 {% block head %}
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.umd.min.js"></script>
   <style>
     .legend-scroll {
       max-height: 420px;
@@ -87,9 +86,6 @@
 <script type="text/javascript">
 $(document).ready(function () {
     const assemblyUrl = "{{ url_for('show_assembly', assembly_id=0)[:-1] }}";
-    if (window.Chart && window.ChartZoom) {
-        Chart.register(ChartZoom);
-    }
     const palette = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'];
     const speciesKey = (metric) => metric.suspected_organism || 'Unknown';
     const MAX_SPECIES = 4;
@@ -310,21 +306,6 @@ $(document).ready(function () {
                                 const { rawContamination, rawCompleteness, assemblyId } = context.raw;
                                 return `Assembly ${assemblyId}: Contamination ${formatBinValue(rawContamination)}, Completeness ${formatBinValue(rawCompleteness)}`;
                             },
-                        },
-                    },
-                    zoom: {
-                        pan: {
-                            enabled: true,
-                            mode: 'xy',
-                        },
-                        zoom: {
-                            wheel: {
-                                enabled: true,
-                            },
-                            pinch: {
-                                enabled: true,
-                            },
-                            mode: 'xy',
                         },
                     },
                     legend: { display: false },
