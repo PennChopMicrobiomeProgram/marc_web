@@ -35,7 +35,6 @@ from app.datatables import datatables_response, init_app, query_columns
 from app.nl_query import generate_sql, generate_sql_modification
 from werkzeug.middleware.proxy_fix import ProxyFix
 
-
 app = Flask(__name__)
 app.secret_key = os.urandom(12)
 

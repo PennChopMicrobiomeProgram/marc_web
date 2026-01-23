@@ -53,8 +53,7 @@ query_prompt_template = ChatPromptTemplate.from_messages(
     ]
 )
 
-GENERATE_QUERY_PROMPT = (
-    lambda input: f"""
+GENERATE_QUERY_PROMPT = lambda input: f"""
 ``` SYSTEM
 Given an input question, create a syntactically correct SQLite3 query to run to help find the answer. Unless the user specifies
 in his question a specific number of examples they wish to obtain, you can return all the results that match the question.
@@ -70,7 +69,6 @@ Only use the following tables:
 {input}
 ```
 """
-)
 
 llm = ChatOpenAI(
     model="gpt-4o",
