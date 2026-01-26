@@ -1,6 +1,6 @@
 flask~=3.1
 flask-sqlalchemy~=3.1
-gunicorn~=23.0
+gunicorn~=24.1
 langchain~=1.2
 langchain-openai~=1.1
 langgraph~=1.0
