@@ -10,9 +10,9 @@
   <link
     rel="preload"
     as="font"
-    href="https://www.research.chop.edu/themes/custom/chopresearch/fonts/rubrik-regular-webfont.woff2"
+    href="{{ url_for('static', filename='fonts/rubrik/TPRubrik-Regular.woff2') }}"
     type="font/woff2"
-    crossorigin
+    crossorigin="anonymous"
   >
   <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
