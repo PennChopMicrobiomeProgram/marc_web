@@ -1,5 +1,14 @@
 {% extends 'base.html' %}
 
+{% block head %}
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/phylotree@2.4.0/dist/phylotree.css"
+  integrity="sha384-4Z3mkjcoeAfMJix9nxpdTzuemcgW8Y3+rBvP/S0sqGTJiZhcY1o846BvzENN4EuY"
+  crossorigin="anonymous"
+>
+{% endblock %}
+
 {% block body %}
 <div class="container py-4">
   <a class="btn btn-link ps-0" href="{{ url_for('browse_taxonomic_assignments') }}">
@@ -27,7 +36,22 @@
       <p class="text-danger mb-0">Unable to read treefile: {{ tree_error }}</p>
       {% elif tree_content %}
       <p class="text-muted small mb-2">Source: {{ tree_path }}</p>
-      <pre class="bg-light border rounded p-3 mb-0">{{ tree_content }}</pre>
+      <div id="tree-container" class="border rounded bg-white" style="min-height: 500px;"></div>
+      <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js" integrity="sha384-CjloA8y00+1SDAUkjs099PVfnY2KmDC2BZnws9kh8D/lX1s46w6EPhpXdqMfjK6i" crossorigin="anonymous"></script>
+      <script src="https://cdn.jsdelivr.net/npm/underscore@1.13.7/underscore-min.js" integrity="sha384-pSOYJz6tr3k8mV502/FWpqSv7+V4JzjQc8uhWMOZE1SoCFLcJCSfxMFOE6hEd/hT" crossorigin="anonymous"></script>
+      <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js" integrity="sha384-H6KKS1H1WwuERMSm+54dYLzjg0fKqRK5ZRyASdbrI/lwrCc6bXEmtGYr5SwvP1pZ" crossorigin="anonymous"></script>
+      <script src="https://cdn.jsdelivr.net/npm/phylotree@2.4.0/dist/phylotree.min.js" integrity="sha384-34Lu7wnDpakXRJnVFjFOd2/2rWjTA18GPeCh8LgBT007VUc43HtcbFilygn/rwFT" crossorigin="anonymous"></script>
+      <script>
+        const newick = {{ tree_content | tojson }};
+        const tree = new phylotree.phylotree(newick);
+        tree.render({
+          container: "#tree-container",
+          width: document.querySelector("#tree-container").clientWidth || 800,
+          height: 500,
+          "align-tips": true,
+          zoom: true
+        });
+      </script>
       {% elif tree_root %}
       <p class="mb-0">No treefile found for this species.</p>
       {% else %}

@@ -25,11 +25,20 @@
 <script type="text/javascript">
 $(document).ready(function () {
     const assignmentUrl = "{{ url_for('show_taxonomic_assignment', assembly_id=0)[:-1] }}";
+    const speciesUrl = "{{ url_for('show_species', species_name='') }}";
     const oTable = createServerDataTable('#taxonomic_assignments', '{{ url_for('api_taxonomic_assignments') }}', [
         { data: 'assembly_id', render: function(d) { return '<a href="' + assignmentUrl + d + '">' + d + '</a>'; } },
         { data: 'isolate_id' },
         { data: 'tool' },
-        { data: 'classification' },
+        { data: 'classification', render: function(value, type) {
+            if (type !== 'display') {
+                return value;
+            }
+            if (!value) {
+                return '';
+            }
+            return '<a href="' + speciesUrl + encodeURIComponent(value) + '">' + value + '</a>';
+        } },
         { data: 'comment' },
     ]);
 
