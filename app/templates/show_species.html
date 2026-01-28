@@ -36,22 +36,50 @@
       <p class="text-danger mb-0">Unable to read treefile: {{ tree_error }}</p>
       {% elif tree_content %}
       <p class="text-muted small mb-2">Source: {{ tree_path.rsplit('/', 1)[-1] }}</p>
+      <div id="tree-status" class="text-muted small mb-2" role="status">
+        Loading tree…
+      </div>
       <div id="tree-container" class="border rounded bg-white" style="min-height: 500px;"></div>
       <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js" integrity="sha384-CjloA8y00+1SDAUkjs099PVfnY2KmDC2BZnws9kh8D/lX1s46w6EPhpXdqMfjK6i" crossorigin="anonymous"></script>
       <script src="https://cdn.jsdelivr.net/npm/underscore@1.13.7/underscore-min.js" integrity="sha384-pSOYJz6tr3k8mV502/FWpqSv7+V4JzjQc8uhWMOZE1SoCFLcJCSfxMFOE6hEd/hT" crossorigin="anonymous"></script>
       <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js" integrity="sha384-H6KKS1H1WwuERMSm+54dYLzjg0fKqRK5ZRyASdbrI/lwrCc6bXEmtGYr5SwvP1pZ" crossorigin="anonymous"></script>
       <script src="https://cdn.jsdelivr.net/npm/phylotree@2.4.0/dist/phylotree.min.js" integrity="sha384-34Lu7wnDpakXRJnVFjFOd2/2rWjTA18GPeCh8LgBT007VUc43HtcbFilygn/rwFT" crossorigin="anonymous"></script>
       <script>
-        const newick = {{ tree_content | tojson }};
-        console.log(newick);
-        const tree = new phylotree.phylotree(newick);
-        tree.render({
-          container: "#tree-container",
-          width: document.querySelector("#tree-container").clientWidth || 800,
-          height: 500,
-          "align-tips": true,
-          zoom: true
-        });
+        const rawNewick = {{ tree_content | tojson }};
+        const statusEl = document.querySelector("#tree-status");
+        const containerEl = document.querySelector("#tree-container");
+        const status = (message, className = "text-muted") => {
+          statusEl.textContent = message;
+          statusEl.className = `small mb-2 ${className}`;
+        };
+        const treeWidth = containerEl.clientWidth || 800;
+        const newick = rawNewick.trim().endsWith(";")
+          ? rawNewick.trim()
+          : `${rawNewick.trim()};`;
+
+        console.debug("Treefile length:", rawNewick.length);
+        console.debug("Treefile preview:", rawNewick.slice(0, 200));
+
+        if (!window.phylotree) {
+          status("Phylotree library failed to load.", "text-danger");
+        } else if (!newick || newick === ";") {
+          status("Treefile is empty after trimming.", "text-danger");
+        } else {
+          try {
+            const tree = new phylotree.phylotree(newick);
+            tree.render({
+              container: "#tree-container",
+              width: treeWidth,
+              height: 500,
+              "align-tips": true,
+              zoom: true
+            });
+            status("Tree rendered successfully.");
+          } catch (error) {
+            console.error("Failed to render tree", error);
+            status(`Tree render failed: ${error.message}`, "text-danger");
+          }
+        }
       </script>
       {% elif tree_root %}
       <p class="mb-0">No treefile found for this species.</p>
