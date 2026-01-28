@@ -35,7 +35,7 @@
       {% if tree_error %}
       <p class="text-danger mb-0">Unable to read treefile: {{ tree_error }}</p>
       {% elif tree_content %}
-      <p class="text-muted small mb-2">Source: {{ tree_path }}</p>
+      <p class="text-muted small mb-2">Source: {{ tree_path.rsplit('/', 1)[-1] }}</p>
       <div id="tree-container" class="border rounded bg-white" style="min-height: 500px;"></div>
       <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js" integrity="sha384-CjloA8y00+1SDAUkjs099PVfnY2KmDC2BZnws9kh8D/lX1s46w6EPhpXdqMfjK6i" crossorigin="anonymous"></script>
       <script src="https://cdn.jsdelivr.net/npm/underscore@1.13.7/underscore-min.js" integrity="sha384-pSOYJz6tr3k8mV502/FWpqSv7+V4JzjQc8uhWMOZE1SoCFLcJCSfxMFOE6hEd/hT" crossorigin="anonymous"></script>
