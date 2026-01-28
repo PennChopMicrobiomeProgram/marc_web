@@ -2,6 +2,7 @@
 *.sqlite3
 *.sqlite
 last_sync
+trees/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

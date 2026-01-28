@@ -117,7 +117,15 @@
               <tbody>
                 {% for assignment in assignments %}
                 <tr>
-                  <td>{{ assignment.classification or '—' }}</td>
+                  <td>
+                    {% if assignment.classification %}
+                    <a href="{{ url_for('show_species', species_name=assignment.classification) }}">
+                      {{ assignment.classification }}
+                    </a>
+                    {% else %}
+                    —
+                    {% endif %}
+                  </td>
                   <td>{{ assignment.comment or '—' }}</td>
                   <td>{{ assignment.tool or '—' }}</td>
                 </tr>

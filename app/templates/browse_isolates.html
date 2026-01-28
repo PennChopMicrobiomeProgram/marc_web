@@ -27,6 +27,7 @@
   $(document).ready(function () {
       /* Initialize the DataTable with server-side processing */
       const isolateUrl = "{{ url_for('show_isolate', isolate_id='') }}";
+      const speciesUrl = "{{ url_for('show_species', species_name='') }}";
       const renderCollectionYear = (value, type) => {
           if (!value) {
               return type === 'sort' || type === 'type' ? null : '';
@@ -59,7 +60,15 @@
           { data: 'received_date', render: function(value, type) { return renderCollectionYear(value, type); } },
           { data: 'subject_id' },
           { data: 'specimen_id' },
-          { data: 'suspected_organism' }
+          { data: 'suspected_organism', render: function(value, type) {
+              if (type !== 'display') {
+                  return value;
+              }
+              if (!value) {
+                  return '';
+              }
+              return '<a href="' + speciesUrl + encodeURIComponent(value) + '">' + value + '</a>';
+          } }
       ]);
   
       /* Move search box to bottom of summary area */
