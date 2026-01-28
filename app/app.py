@@ -110,6 +110,9 @@ def index():
     special_collection_descriptions = {
         "Bacteremia": "Bacteria suspected to cause bacteremia",
         "Surveillance": "Bacteria isolated from the nares of patients as part of surveillance",
+        "CoNS": "Targeted collection of non-Staphylococcus aureus staphylococci isolated from the nares of patients as part of NICU surveillance efforts",
+        "AST": "Bacteria isolated from a range of non-blood clinical sources",
+        "C. diff": "De-identified Clostridioides difficile isolates obtained from patients with C. difficile–positive infections",
     }
 
     try:
