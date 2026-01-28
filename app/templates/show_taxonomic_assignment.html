@@ -22,7 +22,15 @@
         <dd class="col-sm-8">{{ assignment.tool or '—' }}</dd>
 
         <dt class="col-sm-4">Classification</dt>
-        <dd class="col-sm-8">{{ assignment.classification or '—' }}</dd>
+        <dd class="col-sm-8">
+          {% if assignment.classification %}
+          <a href="{{ url_for('show_species', species_name=assignment.classification) }}">
+            {{ assignment.classification }}
+          </a>
+          {% else %}
+          —
+          {% endif %}
+        </dd>
 
         <dt class="col-sm-4">Comment</dt>
         <dd class="col-sm-8">{{ assignment.comment or '—' }}</dd>

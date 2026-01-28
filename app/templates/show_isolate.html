@@ -21,7 +21,15 @@
         <dd class="col-sm-8">{{ isolate.specimen_id }}</dd>
 
         <dt class="col-sm-4">Suspected Organism</dt>
-        <dd class="col-sm-8">{{ isolate.suspected_organism or '—' }}</dd>
+        <dd class="col-sm-8">
+          {% if isolate.suspected_organism %}
+          <a href="{{ url_for('show_species', species_name=isolate.suspected_organism) }}">
+            {{ isolate.suspected_organism }}
+          </a>
+          {% else %}
+          —
+          {% endif %}
+        </dd>
 
         <dt class="col-sm-4">Special Collection</dt>
         <dd class="col-sm-8">{{ isolate.special_collection or '—' }}</dd>

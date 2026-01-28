@@ -1,5 +1,6 @@
 import csv
 import os
+from typing import Optional
 from app import __version__, get_db_last_sync
 from flask import (
     Flask,
@@ -39,6 +40,14 @@ app = Flask(__name__)
 app.secret_key = os.urandom(12)
 
 IS_DEV_SITE = os.environ.get("MARC_DEV", "").lower() == "true"
+MARC_TREE_FP = os.environ.get("MARC_TREE_FP")
+
+
+def treefile_for_species(species_name: str) -> Optional[str]:
+    if not species_name:
+        return None
+    slug = "_".join(species_name.lower().split())
+    return f"{slug}.treefile"
 
 
 @app.context_processor
@@ -377,6 +386,36 @@ def show_antimicrobial(antimicrobial_id: int):
         "show_antimicrobial.html",
         antimicrobial=antimicrobial_obj,
         isolate_id=isolate_id,
+    )
+
+
+@app.route("/species/<path:species_name>")
+def show_species(species_name: str):
+    assignment_count = (
+        db.session.query(func.count(TaxonomicAssignment.id))
+        .filter(TaxonomicAssignment.classification == species_name)
+        .scalar()
+    )
+    treefile_name = treefile_for_species(species_name)
+    tree_content = None
+    tree_path = None
+    tree_error = None
+    if MARC_TREE_FP and treefile_name:
+        candidate = Path(MARC_TREE_FP) / treefile_name
+        tree_path = str(candidate)
+        if candidate.is_file():
+            try:
+                tree_content = candidate.read_text()
+            except Exception as exc:
+                tree_error = str(exc)
+    return render_template(
+        "show_species.html",
+        species_name=species_name,
+        assignment_count=assignment_count,
+        tree_path=tree_path,
+        tree_content=tree_content,
+        tree_error=tree_error,
+        tree_root=MARC_TREE_FP,
     )
 
 
