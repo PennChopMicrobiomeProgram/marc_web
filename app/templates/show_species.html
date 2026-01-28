@@ -2,9 +2,9 @@
 
 {% block head %}
 <link
+  href="https://cdn.jsdelivr.net/npm/phylotree@2.4.0/dist/phylotree.min.css"
   rel="stylesheet"
-  href="https://cdn.jsdelivr.net/npm/phylotree@2.4.0/dist/phylotree.css"
-  integrity="sha384-4Z3mkjcoeAfMJix9nxpdTzuemcgW8Y3+rBvP/S0sqGTJiZhcY1o846BvzENN4EuY"
+  integrity="sha384-aiMpATZTEuYHJmBVtYfxx+TOz295Gf4nfxFQrb+0jLomP6U3EFtcVv5sHsbpDOkk"
   crossorigin="anonymous"
 >
 {% endblock %}
@@ -43,6 +43,7 @@
       <script src="https://cdn.jsdelivr.net/npm/phylotree@2.4.0/dist/phylotree.min.js" integrity="sha384-34Lu7wnDpakXRJnVFjFOd2/2rWjTA18GPeCh8LgBT007VUc43HtcbFilygn/rwFT" crossorigin="anonymous"></script>
       <script>
         const newick = {{ tree_content | tojson }};
+        console.log(newick);
         const tree = new phylotree.phylotree(newick);
         tree.render({
           container: "#tree-container",
