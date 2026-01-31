@@ -36,18 +36,26 @@
       <p class="text-danger mb-0">Unable to read treefile: {{ tree_error }}</p>
       {% elif tree_content %}
       <p class="text-muted small mb-2">Source: {{ tree_path.rsplit('/', 1)[-1] }}</p>
-      <div id="tree-container" class="border rounded bg-white" style="min-height: 500px;"></div>
-      <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js" integrity="sha384-CjloA8y00+1SDAUkjs099PVfnY2KmDC2BZnws9kh8D/lX1s46w6EPhpXdqMfjK6i" crossorigin="anonymous"></script>
+      <div
+        id="tree-container"
+        class="border rounded bg-white"
+        style="min-height: 500px; width: 100%;"
+      ></div>
+      <script src="https://cdn.jsdelivr.net/npm/d3@5.16.0/dist/d3.min.js" integrity="sha384-3fWy2ac2SbHqetCPxW6g4o5lm5nH6ri/3nSrCtU8X41HbQVf2V3dPz8eS8D6V7/v" crossorigin="anonymous"></script>
+      <script src="https://cdn.jsdelivr.net/npm/underscore@1.13.7/underscore-min.js" integrity="sha384-pSOYJz6tr3k8mV502/FWpqSv7+V4JzjQc8uhWMOZE1SoCFLcJCSfxMFOE6hEd/hT" crossorigin="anonymous"></script>
       <script src="https://cdn.jsdelivr.net/npm/phylotree@2.4.0/dist/phylotree.min.js" integrity="sha384-34Lu7wnDpakXRJnVFjFOd2/2rWjTA18GPeCh8LgBT007VUc43HtcbFilygn/rwFT" crossorigin="anonymous"></script>
       <script>
-        const newick =
-          "((((Pig:0.147969,Cow:0.21343):0.085099,Horse:0.165787,Cat:0.264806):0.058611, ((RhMonkey{Foreground}:0.002015,Baboon{Foreground}:0.003108){Foreground}:0.022733 ,(Human{Foreground}:0.004349,Chimp{Foreground}:0.000799){Foreground}:0.011873):0.101856) :0.340802,Rat:0.050958,Mouse:0.09795);";
-        const tree = new phylotree.phylotree(newick);
-        tree.render({
-          container: "#tree-container",
-          width: document.querySelector("#tree-container").clientWidth || 800,
-          height: 500,
-          "align-tips": true
+        window.addEventListener("load", () => {
+          const newick =
+            "((((Pig:0.147969,Cow:0.21343):0.085099,Horse:0.165787,Cat:0.264806):0.058611,((RhMonkey{Foreground}:0.002015,Baboon{Foreground}:0.003108){Foreground}:0.022733,(Human{Foreground}:0.004349,Chimp{Foreground}:0.000799){Foreground}:0.011873):0.101856):0.340802,Rat:0.050958,Mouse:0.09795);";
+          const container = document.querySelector("#tree-container");
+          const tree = new phylotree.phylotree(newick);
+          tree.render({
+            container: "#tree-container",
+            width: container.clientWidth || 800,
+            height: 500,
+            "align-tips": true
+          });
         });
       </script>
       {% elif tree_root %}
