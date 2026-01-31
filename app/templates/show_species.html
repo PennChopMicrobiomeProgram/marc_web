@@ -2,11 +2,21 @@
 
 {% block head %}
 <link
-  href="https://cdn.jsdelivr.net/npm/phylotree@2.4.0/dist/phylotree.min.css"
+  href="https://cdn.jsdelivr.net/npm/jquery-ui-dist@1.13.3/jquery-ui.min.css"
   rel="stylesheet"
-  integrity="sha384-aiMpATZTEuYHJmBVtYfxx+TOz295Gf4nfxFQrb+0jLomP6U3EFtcVv5sHsbpDOkk"
+  integrity="sha384-Wdf9be1Zb3KyYwg8A+RZyGXu7V52PYvfwVvmBllPV+Zt39d2+PnJpzm8v6ZEbIIW"
   crossorigin="anonymous"
 >
+<style>
+  #tree-container {
+    height: 600px;
+  }
+
+  #tree-container svg {
+    height: 100%;
+    width: 100%;
+  }
+</style>
 {% endblock %}
 
 {% block body %}
@@ -37,21 +47,61 @@
       {% elif tree_content %}
       <p class="text-muted small mb-2">Source: {{ tree_path.rsplit('/', 1)[-1] }}</p>
       <div id="tree-container" class="border rounded bg-white" style="min-height: 500px;"></div>
-      <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js" integrity="sha384-CjloA8y00+1SDAUkjs099PVfnY2KmDC2BZnws9kh8D/lX1s46w6EPhpXdqMfjK6i" crossorigin="anonymous"></script>
-      <script src="https://cdn.jsdelivr.net/npm/underscore@1.13.7/underscore-min.js" integrity="sha384-pSOYJz6tr3k8mV502/FWpqSv7+V4JzjQc8uhWMOZE1SoCFLcJCSfxMFOE6hEd/hT" crossorigin="anonymous"></script>
-      <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js" integrity="sha384-H6KKS1H1WwuERMSm+54dYLzjg0fKqRK5ZRyASdbrI/lwrCc6bXEmtGYr5SwvP1pZ" crossorigin="anonymous"></script>
-      <script src="https://cdn.jsdelivr.net/npm/phylotree@2.4.0/dist/phylotree.min.js" integrity="sha384-34Lu7wnDpakXRJnVFjFOd2/2rWjTA18GPeCh8LgBT007VUc43HtcbFilygn/rwFT" crossorigin="anonymous"></script>
+      <div id="tree-error" class="alert alert-danger d-none mt-3" role="alert"></div>
+      <div class="btn-group btn-group-sm mt-3" role="group" aria-label="Tree display mode">
+        <input type="radio" class="btn-check" name="tree-display" id="phy_b" autocomplete="off">
+        <label class="btn btn-outline-primary" for="phy_b">Phylogram</label>
+        <input type="radio" class="btn-check" name="tree-display" id="cla_b" autocomplete="off">
+        <label class="btn btn-outline-primary" for="cla_b">Cladogram</label>
+        <input type="radio" class="btn-check" name="tree-display" id="phya_b" autocomplete="off">
+        <label class="btn btn-outline-primary" for="phya_b">Aligned phylogram</label>
+      </div>
+      <script defer src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js" integrity="sha384-1H217gwSVyLSIfaLxHbE7dRb3v4mYCKbpQvzx0cegeju1MVsGrX5xXxAvs/HgeFs" crossorigin="anonymous"></script>
+      <script defer src="https://cdn.jsdelivr.net/npm/jquery-ui-dist@1.13.3/jquery-ui.min.js" integrity="sha384-oVpH0DXO9nadZxTmPSQo3YwWqfN/Up9aRDHCxLrw8A2LjkFNcM/XILw4KGMaL95z" crossorigin="anonymous"></script>
+      <script defer src="https://cdn.jsdelivr.net/npm/d3@3.5.17/d3.min.js" integrity="sha384-N8EP0Yml0jN7e0DcXlZ6rt+iqKU9Ck6f1ZQ+j2puxatnBq4k9E8Q6vqBcY34LNbn" crossorigin="anonymous"></script>
+      <script defer src="https://cdn.jsdelivr.net/npm/underscore@1.13.7/underscore-min.js" integrity="sha384-pSOYJz6tr3k8mV502/FWpqSv7+V4JzjQc8uhWMOZE1SoCFLcJCSfxMFOE6hEd/hT" crossorigin="anonymous"></script>
+      <script defer src="https://cdn.jsdelivr.net/npm/phyloxml@0.9.16/sax.js" integrity="sha384-r+pGLTJHjZxhG9bghjuHlvrYFq+b7hRuOcdqI/S07ZxOeLz08Yk6HnwNYV8ZfCoy" crossorigin="anonymous"></script>
+      <script defer src="https://cdn.jsdelivr.net/npm/phyloxml@0.9.16/phyloxml.js" integrity="sha384-LLXafrz4arzswNJuWwwE2+iiKyMfIpn5HcZND9efc6dmn0UWEO835MtkABbEIcMb" crossorigin="anonymous"></script>
+      <script defer src="https://cdn.jsdelivr.net/npm/archaeopteryx@1.8.1/forester.js" integrity="sha384-xWkrSioFNqLLtb+qT5nbSiWMGuo2e9rFE3Do0jzXkXiamW56Sm9bi/Ek7AMj/l4g" crossorigin="anonymous"></script>
+      <script defer src="https://cdn.jsdelivr.net/npm/archaeopteryx@1.8.1/archaeopteryx.js" integrity="sha384-p6GlKhVZ4zr+onfcnq1RdJWS1yfbZvaa0o4c5urN+3Vv+sJRefuswCzLJtNDA9cz" crossorigin="anonymous"></script>
       <script>
-        const newick = {{ tree_content | tojson }};
-        console.log(newick);
-        const tree = new phylotree.phylotree(newick);
-        tree.render({
-          container: "#tree-container",
-          width: document.querySelector("#tree-container").clientWidth || 800,
-          height: 500,
-          "align-tips": true,
-          zoom: true
-        });
+        const renderTree = () => {
+          const container = document.querySelector("#tree-container");
+          const errorMessage = document.querySelector("#tree-error");
+
+          const showError = (message) => {
+            container.innerHTML = "";
+            errorMessage.textContent = message;
+            errorMessage.classList.remove("d-none");
+          };
+
+          try {
+            const newick = {{ tree_content | tojson }}.trim();
+            const tree = archaeopteryx.parseNewHampshire(newick);
+            const options = {};
+            const settings = {
+              enableDynamicSizing: true,
+              zoomToFitUponWindowResize: true
+            };
+            $("#phy_b, #cla_b, #phya_b").checkboxradio({ icon: false });
+            archaeopteryx.launch(`#${container.id}`, tree, options, settings, []);
+            const svg = container.querySelector("svg");
+            if (svg) {
+              svg.setAttribute("width", "100%");
+              svg.setAttribute("height", "100%");
+            }
+          } catch (error) {
+            showError(
+              `Unable to render this tree. ${error instanceof Error ? error.message : error}`
+            );
+          }
+        };
+
+        if (document.readyState === "loading") {
+          document.addEventListener("DOMContentLoaded", renderTree);
+        } else {
+          renderTree();
+        }
       </script>
       {% elif tree_root %}
       <p class="mb-0">No treefile found for this species.</p>
