@@ -30,7 +30,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ctbushman/marc_web
+          images: chopmicrobiome/marc_web
       
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
