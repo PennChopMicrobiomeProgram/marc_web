@@ -23,14 +23,32 @@
 
   <h4>
     The database currently holds {{ isolate_count }} isolates from {{ patient_count }} patients.
-  </h4>
+  </h4><br>
 
-  <p>The efforts to curate the isolates include:</p>
+  <h5>The efforts to curate the isolates include:</h5>
   <ul class="list-unstyled">
     {% for collection, val in special_collection_counts.items() %}
     <li class="mb-2"><strong>{{ collection }}</strong> ({{ val[0] }} isolates){% if val[1] %} - {{ val[1] }}{% endif %}</li>
     {% endfor %}
+  </ul><br>
+
+  <h5>The most common species in the database are:</h5>
+  <ul class="list-unstyled">
+    {% for species, val in species_counts %}
+    <li class="mb-2"><strong>{{ species }}:</strong> {{ val }} isolates</li>
+    {% endfor %}
+  </ul><br>
+  
+
+  <h4>
+    Publications
+  </h4>
+
+  <p>We are working on multiple projects in parallel using this data. The current publications are listed below:</p>
+  <ul class="list-unstyled">
+    <li class="mb-2">She Q, Srinivasan L, Theiller E, Galis BE, Napper T, Feder A, Arvanitis A, Jones SM, Hayes E, Puopolo KM, Baldassano RN, David MZ, Coffin SE, Gibbs KA, Potter RF, Smith KP, Harris RM, Zackular JP, Moustafa AM, Planet PJ. Rapid dissemination of Staphylococcus aureus in the neonatal intensive care unit is associated with invasive infection. Nat Commun. 2026 Feb 9. doi: 10.1038/s41467-026-69074-z. Epub ahead of print. <a href="https://pubmed.ncbi.nlm.nih.gov/41663361/">PMID: 41663361</a>.</li>
   </ul>
+
 </div>
 
 <div>

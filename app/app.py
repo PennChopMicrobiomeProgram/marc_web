@@ -30,7 +30,7 @@ from marc_db.views import (
     get_taxonomic_assignments,
 )
 from pathlib import Path
-from sqlalchemy import select, text, func
+from sqlalchemy import select, text, func, desc
 from sqlalchemy.pool import NullPool
 from app.datatables import datatables_response, init_app, query_columns
 from app.nl_query import generate_sql, generate_sql_modification
@@ -141,6 +141,20 @@ def index():
     except Exception as e:
         print(f"Error fetching special collection counts: {e}")
 
+    try:
+        # Get counts of all the species in the collection
+        species = (
+            db.session.query(Isolate.suspected_organism, func.count(Isolate.sample_id).label("count"))
+            .filter(Isolate.suspected_organism.is_not(None))
+            .filter(Isolate.suspected_organism != "Unknown")
+            .group_by(Isolate.suspected_organism)
+            .order_by(desc("count"))
+            .limit(10)
+            .all()
+        )
+    except Exception as e:
+        print(f"Error fetching species counts: {e}")    
+
     return render_template(
         "index.html",
         version=__version__,
@@ -149,6 +163,7 @@ def index():
         isolate_count=isolate_count,
         patient_count=patient_count,
         special_collection_counts=special_collections,
+        species_counts=species,
     )
 
 
