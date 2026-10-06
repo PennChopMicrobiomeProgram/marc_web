@@ -169,12 +169,18 @@ def index():
 
 @app.route("/isolates")
 def browse_isolates():
-    return render_template("browse_isolates.html")
+    return render_template(
+        "browse_isolates.html",
+        version=__version__,
+        marc_db_version=marc_db_version)
 
 
 @app.route("/isolate-stats")
 def isolate_stats():
-    return render_template("isolate_stats.html")
+    return render_template(
+        "isolate_stats.html",
+        version=__version__,
+        marc_db_version=marc_db_version)
 
 
 @app.route("/api/isolates")
@@ -186,7 +192,10 @@ def api_isolates():
 def show_isolate(isolate_id):
     isolate_records = get_isolates(db.session, isolate_id)
     if not isolate_records or isolate_records[0] is None:
-        return render_template("dne.html", isolate_id=isolate_id)
+        return render_template(
+            "dne.html", isolate_id=isolate_id,
+            version=__version__,
+	    marc_db_version=marc_db_version)
     isolate = isolate_records[0]
     assemblies = (
         db.session.query(Assembly)
@@ -194,12 +203,17 @@ def show_isolate(isolate_id):
         .order_by(Assembly.id)
         .all()
     )
-    return render_template("show_isolate.html", isolate=isolate, assemblies=assemblies)
+    return render_template("show_isolate.html", isolate=isolate, assemblies=assemblies,
+                           version=__version__, marc_db_version=marc_db_version)
 
 
 @app.route("/aliquots")
 def browse_aliquots():
-    return render_template("browse_aliquots.html")
+    return render_template(
+        "browse_aliquots.html",
+        version=__version__,
+	marc_db_version=marc_db_version)
+
 
 
 @app.route("/api/aliquots")
@@ -211,13 +225,25 @@ def api_aliquots():
 def show_aliquot(aliquot_id):
     aliquot = get_aliquots(db.session, aliquot_id)
     if not aliquot or aliquot[0] is None:
-        return render_template("dne.html", aliquot_id=aliquot_id)
-    return render_template("show_aliquot.html", aliquot=aliquot[0])
+        return render_template(
+            "dne.html", aliquot_id=aliquot_id,
+            version=__version__,
+	    marc_db_version=marc_db_version)
+
+    return render_template(
+        "show_aliquot.html", aliquot=aliquot[0],
+        version=__version__,
+	marc_db_version=marc_db_version)
+
 
 
 @app.route("/assemblies")
 def browse_assemblies():
-    return render_template("browse_assemblies.html")
+    return render_template(
+        "browse_assemblies.html",
+        version=__version__,
+	marc_db_version=marc_db_version)
+
 
 
 @app.route("/api/assemblies")
@@ -279,7 +305,10 @@ def api_assembly_metrics():
 
 @app.route("/assembly_qc")
 def browse_assembly_qc():
-    return render_template("browse_assembly_qc.html")
+    return render_template(
+        "browse_assembly_qc.html",
+        version=__version__,
+	marc_db_version=marc_db_version)
 
 
 @app.route("/api/assembly_qc")
@@ -312,7 +341,9 @@ def show_assembly_qc(assembly_id: int):
         return render_template(
             "dne.html",
             message=f"No assembly QC record found for assembly {assembly_id}.",
-        )
+            version=__version__,
+  	    marc_db_version=marc_db_version)
+
     qc_record = qc_records[0]
     qc, isolate_id = qc_record
     return render_template(
@@ -320,12 +351,18 @@ def show_assembly_qc(assembly_id: int):
         assembly_qc=qc,
         assembly_id=assembly_id,
         isolate_id=isolate_id,
+        version=__version__,
+	marc_db_version=marc_db_version
     )
 
 
 @app.route("/taxonomic_assignments")
 def browse_taxonomic_assignments():
-    return render_template("browse_taxonomic_assignments.html")
+    return render_template(
+        "browse_taxonomic_assignments.html",
+        version=__version__,
+	marc_db_version=marc_db_version)
+
 
 
 @app.route("/api/taxonomic_assignments")
@@ -351,6 +388,8 @@ def show_taxonomic_assignment(assembly_id: int):
         return render_template(
             "dne.html",
             message=f"No taxonomic assignment found for assembly {assembly_id}.",
+            version=__version__,
+	    marc_db_version=marc_db_version
         )
     assignment, isolate_id = assignments[0]
     return render_template(
@@ -358,12 +397,18 @@ def show_taxonomic_assignment(assembly_id: int):
         assignment=assignment,
         assembly_id=assembly_id,
         isolate_id=isolate_id,
+        version=__version__,
+	marc_db_version=marc_db_version
     )
 
 
 @app.route("/antimicrobials")
 def browse_antimicrobials():
-    return render_template("browse_antimicrobials.html")
+    return render_template(
+        "browse_antimicrobials.html",
+        version=__version__,
+	marc_db_version=marc_db_version)
+
 
 
 @app.route("/api/antimicrobials")
@@ -395,12 +440,18 @@ def show_antimicrobial(antimicrobial_id: int):
         .first()
     )
     if not antimicrobial_record:
-        return render_template("dne.html", antimicrobial_id=antimicrobial_id)
+        return render_template(
+            "dne.html", antimicrobial_id=antimicrobial_id,
+            version=__version__,
+            marc_db_version=marc_db_version)
+
     antimicrobial_obj, isolate_id = antimicrobial_record
     return render_template(
         "show_antimicrobial.html",
         antimicrobial=antimicrobial_obj,
         isolate_id=isolate_id,
+        version=__version__,
+	marc_db_version=marc_db_version
     )
 
 
@@ -431,6 +482,8 @@ def show_species(species_name: str):
         tree_content=tree_content,
         tree_error=tree_error,
         tree_root=MARC_TREE_FP,
+        version=__version__,
+	marc_db_version=marc_db_version
     )
 
 
@@ -438,7 +491,10 @@ def show_species(species_name: str):
 def show_assembly(assembly_id: int):
     assemblies = get_assemblies(db.session, id=assembly_id)
     if not assemblies or assemblies[0] is None:
-        return render_template("dne.html", assembly_id=assembly_id)
+        return render_template(
+            "dne.html", assembly_id=assembly_id,
+            version=__version__,
+	    marc_db_version=marc_db_version)
     assembly = assemblies[0]
     qc = assembly.assembly_qc
     assignments = (
@@ -453,6 +509,8 @@ def show_assembly(assembly_id: int):
         assignments=assignments,
         antimicrobials=antimicrobials,
         contaminants=contaminants,
+        version=__version__,
+	marc_db_version=marc_db_version
     )
 
 
@@ -474,6 +532,8 @@ def query():
         models=MARC_MODELS,
         model_fields=MARC_MODEL_FIELDS,
         error=error,
+        version=__version__,
+	marc_db_version=marc_db_version
     )
 
 
@@ -590,7 +650,10 @@ def info():
 
 @app.route("/arch")
 def arch():
-    return render_template("arch.html")
+    return render_template(
+        "arch.html",
+        version=__version__,
+	marc_db_version=marc_db_version)
 
 
 if not app.debug:
