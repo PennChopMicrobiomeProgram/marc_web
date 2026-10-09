@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block body %}
+<div class="container py-4">
+  <a class="btn btn-link ps-0" href="{{ url_for('browse_ast') }}">
+    <i class="bi bi-arrow-left"></i> Back to antimicrobials
+  </a>
+
+  <div class="card shadow-sm">
+    <div class="card-header">
+      <h2 class="h4 mb-0">Antibiotic Susceptibility Testing {{ ast.ast_id }}</h2>
+    </div>
+    <div class="card-body">
+      <dl class="row mb-0">
+        <dt class="col-sm-4">Specimen ID</dt>
+        <dd class="col-sm-8">{{ ast.specimen_id or '—' }}</dd>
+
+        <dt class="col-sm-4">Organism name</dt>
+        <dd class="col-sm-8">{{ ast.organism_name or '—' }}</dd>
+
+        <dt class="col-sm-4">Antibiotic</dt>
+        <dd class="col-sm-8">{{ ast.antibiotic or '—' }}</dd>
+
+        <dt class="col-sm-4">AST Method</dt>
+        <dd class="col-sm-8">{{ ast.ast_method or '—' }}</dd>
+
+        <dt class="col-sm-4">Susceptibility</dt>
+        <dd class="col-sm-8">{{ ast.susceptibility or '—' }}</dd>
+
+        <dt class="col-sm-4">Sensitivity value</dt>
+        <dd class="col-sm-8">{{ ast.sensitivity_value or '—' }}</dd>
+      </dl>
+    </div>
+  </div>
+</div>
+{% endblock %}
