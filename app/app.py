@@ -21,6 +21,7 @@ from marc_db.models import (
     Antimicrobial,
     Base,
     Isolate,
+    Ast
 )
 from marc_db.views import (
     get_aliquots,
@@ -28,6 +29,7 @@ from marc_db.views import (
     get_assembly_qc,
     get_isolates,
     get_taxonomic_assignments,
+    #get_asts,
 )
 from pathlib import Path
 from sqlalchemy import select, text, func, desc
@@ -81,6 +83,7 @@ MARC_MODELS = [
     AssemblyQC,
     TaxonomicAssignment,
     Antimicrobial,
+    Ast
 ]
 
 # Mapping of model table names to their field names
@@ -195,7 +198,7 @@ def show_isolate(isolate_id):
         return render_template(
             "dne.html", isolate_id=isolate_id,
             version=__version__,
-	    marc_db_version=marc_db_version)
+	        marc_db_version=marc_db_version)
     isolate = isolate_records[0]
     assemblies = (
         db.session.query(Assembly)
@@ -212,7 +215,7 @@ def browse_aliquots():
     return render_template(
         "browse_aliquots.html",
         version=__version__,
-	marc_db_version=marc_db_version)
+	    marc_db_version=marc_db_version)
 
 
 
@@ -228,12 +231,12 @@ def show_aliquot(aliquot_id):
         return render_template(
             "dne.html", aliquot_id=aliquot_id,
             version=__version__,
-	    marc_db_version=marc_db_version)
+	        marc_db_version=marc_db_version)
 
     return render_template(
         "show_aliquot.html", aliquot=aliquot[0],
         version=__version__,
-	marc_db_version=marc_db_version)
+	    marc_db_version=marc_db_version)
 
 
 
@@ -242,7 +245,7 @@ def browse_assemblies():
     return render_template(
         "browse_assemblies.html",
         version=__version__,
-	marc_db_version=marc_db_version)
+	    marc_db_version=marc_db_version)
 
 
 
@@ -308,7 +311,7 @@ def browse_assembly_qc():
     return render_template(
         "browse_assembly_qc.html",
         version=__version__,
-	marc_db_version=marc_db_version)
+	    marc_db_version=marc_db_version)
 
 
 @app.route("/api/assembly_qc")
@@ -342,7 +345,7 @@ def show_assembly_qc(assembly_id: int):
             "dne.html",
             message=f"No assembly QC record found for assembly {assembly_id}.",
             version=__version__,
-  	    marc_db_version=marc_db_version)
+  	        marc_db_version=marc_db_version)
 
     qc_record = qc_records[0]
     qc, isolate_id = qc_record
@@ -352,7 +355,7 @@ def show_assembly_qc(assembly_id: int):
         assembly_id=assembly_id,
         isolate_id=isolate_id,
         version=__version__,
-	marc_db_version=marc_db_version
+	    marc_db_version=marc_db_version
     )
 
 
@@ -361,7 +364,7 @@ def browse_taxonomic_assignments():
     return render_template(
         "browse_taxonomic_assignments.html",
         version=__version__,
-	marc_db_version=marc_db_version)
+	    marc_db_version=marc_db_version)
 
 
 
@@ -389,7 +392,7 @@ def show_taxonomic_assignment(assembly_id: int):
             "dne.html",
             message=f"No taxonomic assignment found for assembly {assembly_id}.",
             version=__version__,
-	    marc_db_version=marc_db_version
+	        marc_db_version=marc_db_version
         )
     assignment, isolate_id = assignments[0]
     return render_template(
@@ -398,7 +401,7 @@ def show_taxonomic_assignment(assembly_id: int):
         assembly_id=assembly_id,
         isolate_id=isolate_id,
         version=__version__,
-	marc_db_version=marc_db_version
+	    marc_db_version=marc_db_version
     )
 
 
@@ -407,7 +410,7 @@ def browse_antimicrobials():
     return render_template(
         "browse_antimicrobials.html",
         version=__version__,
-	marc_db_version=marc_db_version)
+	    marc_db_version=marc_db_version)
 
 
 
@@ -451,8 +454,58 @@ def show_antimicrobial(antimicrobial_id: int):
         antimicrobial=antimicrobial_obj,
         isolate_id=isolate_id,
         version=__version__,
-	marc_db_version=marc_db_version
+	    marc_db_version=marc_db_version
     )
+
+
+@app.route("/ast")
+def browse_ast():
+    return render_template(
+        "browse_ast.html",
+        version=__version__,
+	    marc_db_version=marc_db_version)
+
+@app.route("/api/ast")
+def api_ast():
+    query = (
+        select(
+            Ast.ast_id,
+            Ast.specimen_id,
+            #Isolate.specimen_id.label("specimen_id"),
+            Ast.organism_name,
+            Ast.antibiotic,
+            Ast.ast_method,
+            Ast.susceptibility,
+            Ast.sensitivity_value,
+        )
+        #.join(Isolate)
+        #.order_by(Ast.ast_id)
+    )
+    return datatables_response(query)
+
+@app.route("/ast/<int:ast_id>")
+def show_ast(ast_id: int):
+    ast_record = (
+        db.session.query(Ast, Isolate.specimen_id)
+        .join(Isolate)
+        .filter(Ast.ast_id == ast_id)
+        .first()
+    )
+    if not ast_record:
+        return render_template(
+            "dne.html", ast_id=ast_id,
+            version=__version__,
+            marc_db_version=marc_db_version)
+
+    ast_obj, specimen_id = ast_record
+    return render_template(
+        "show_ast.html",
+        ast=ast_obj,
+        specimen_id=specimen_id,
+        version=__version__,
+	    marc_db_version=marc_db_version
+    )
+
 
 
 @app.route("/species/<path:species_name>")
@@ -483,7 +536,7 @@ def show_species(species_name: str):
         tree_error=tree_error,
         tree_root=MARC_TREE_FP,
         version=__version__,
-	marc_db_version=marc_db_version
+	    marc_db_version=marc_db_version
     )
 
 
@@ -510,7 +563,7 @@ def show_assembly(assembly_id: int):
         antimicrobials=antimicrobials,
         contaminants=contaminants,
         version=__version__,
-	marc_db_version=marc_db_version
+	    marc_db_version=marc_db_version
     )
 
 
@@ -533,7 +586,7 @@ def query():
         model_fields=MARC_MODEL_FIELDS,
         error=error,
         version=__version__,
-	marc_db_version=marc_db_version
+	    marc_db_version=marc_db_version
     )
 
 
@@ -653,7 +706,7 @@ def arch():
     return render_template(
         "arch.html",
         version=__version__,
-	marc_db_version=marc_db_version)
+	    marc_db_version=marc_db_version)
 
 
 if not app.debug:

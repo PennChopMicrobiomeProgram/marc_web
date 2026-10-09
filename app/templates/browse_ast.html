@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block body %}
+<div id="ast_summary" class="summary span-24 last">
+  <h2>Antibiotic susceptibility testing</h2>
+</div>
+
+<div class="d-flex flex-row">
+  <div class="d-flex p-5">
+    <table class="display" id="ast">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Specimen ID</th>
+          <th>Organism name</th>
+          <th>Antibiotic</th>
+          <th>AST Method</th>
+          <th>Susceptibility</th>
+          <th>Sensitivity Value</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</div>
+
+<script type="text/javascript">
+$(document).ready(function () {
+    const astUrl = "{{ url_for('show_ast', ast_id=0)[:-1] }}";
+    const oTable = createServerDataTable('#ast', '{{ url_for('api_ast') }}', [
+        { data: 'ast_id', render: function(d) { return '<a href="' + astUrl + d + '">' + d + '</a>'; } },
+        { data: 'specimen_id' },
+        { data: 'organism_name' },
+        { data: 'antibiotic' },
+        { data: 'ast_method' },
+        { data: 'susceptibility' },
+        { data: 'sensitivity_value' },
+    ]);
+
+    $('#ast_filter').appendTo('#ast_summary');
+    $('#ast_info').addClass('span-12');
+    $('#ast_paginate').addClass('span-12 last');
+    oTable.draw();
+});
+</script>
+{% endblock %}
